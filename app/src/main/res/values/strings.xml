@@ -1,6 +1,14 @@
 <resources>
     <string name="app_name">AnotherToDo</string>
 
+    <!--    Меню Navigation Drawer-->
     <string name="nav_single_task_list">Разовые задачи</string>
+
+    <!--    Menu Contextual action bar-->
+    <string name="task_tree_edit_menu">Редактировать</string>
+    <string name="task_tree_delete_menu">Удалить</string>
+
+    <!--    Headers-->
     <string name="header_single_task_list">Разовые задачи</string>
+    <string name="title_action_mode">Ред.</string>
 </resources>
