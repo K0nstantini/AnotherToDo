@@ -18,5 +18,20 @@
         android:id="@+id/singleTaskListFragment"
         android:name="com.homemade.anothertodo.single_tasks.list.SingleTaskListFragment"
         android:label="@string/header_single_task_list"
-        tools:layout="@layout/fragment_single_task_list" />
+        tools:layout="@layout/fragment_single_task_list" >
+        <action
+            android:id="@+id/action_singleTaskListFragment_to_addSingleTaskFragment"
+            app:destination="@id/addSingleTaskFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addSingleTaskFragment"
+        android:name="com.homemade.anothertodo.single_tasks.add_edit.AddSingleTaskFragment"
+        android:label="@string/title_add_task_new_task"
+        tools:layout="@layout/fragment_add_single_task" >
+        <argument
+            android:name="singleTaskKey"
+            app:argType="com.homemade.anothertodo.db.entity.SingleTask"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
 </navigation>

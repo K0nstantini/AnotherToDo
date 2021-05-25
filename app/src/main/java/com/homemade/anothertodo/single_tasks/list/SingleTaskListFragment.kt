@@ -5,8 +5,10 @@ import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.homemade.anothertodo.R
 import com.homemade.anothertodo.databinding.FragmentSingleTaskListBinding
+import com.homemade.anothertodo.db.entity.SingleTask
 import com.homemade.anothertodo.utils.DestroyListener
 import com.homemade.anothertodo.utils.OnActionItemClickListener
 import com.homemade.anothertodo.utils.PrimaryActionModeCallback
@@ -28,6 +30,17 @@ class SingleTaskListFragment : Fragment(R.layout.fragment_single_task_list) {
 
         adapter = SingleTaskListAdapter()
         binding.recyclerview.adapter = adapter
+
+        setObserve()
+    }
+
+    private fun setObserve() = viewModel.apply {
+        tasks.observe(viewLifecycleOwner, {
+            it?.let { adapter.submitList(it) }
+        })
+        navigateToAdd.observe(viewLifecycleOwner, { event ->
+            event.getContentIfNotHandled()?.let { navigateToAddEdit(null) }
+        })
     }
 
     private fun setActionMode(callBack: PrimaryActionModeCallback) {
@@ -56,5 +69,11 @@ class SingleTaskListFragment : Fragment(R.layout.fragment_single_task_list) {
         callBack.destroyListener = object : DestroyListener {
             override fun destroy() = viewModel.destroyActionMode()
         }
+    }
+
+    private fun navigateToAddEdit(task: SingleTask?) {
+        val action =
+            SingleTaskListFragmentDirections.actionSingleTaskListFragmentToAddSingleTaskFragment()
+        findNavController().navigate(action)
     }
 }

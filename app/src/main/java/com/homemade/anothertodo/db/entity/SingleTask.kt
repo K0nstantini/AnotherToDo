@@ -1,11 +1,14 @@
 package com.homemade.anothertodo.db.entity
 
+import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.homemade.anothertodo.add_classes.MyCalendar
+import kotlinx.parcelize.Parcelize
 
 const val DEFAULT_DEADLINE_SINGLE_TASK = 24
 
+@Parcelize
 @Entity(tableName = "single_task_table")
 data class SingleTask(
     @PrimaryKey var name: String = "",
@@ -16,4 +19,4 @@ data class SingleTask(
     var group: Boolean = false,
     var parent: String = "",
     var toDoAfterTask: String = ""                          // Задача будет сегенрирована только после выполнения другой задачи
-)
+) : Parcelable

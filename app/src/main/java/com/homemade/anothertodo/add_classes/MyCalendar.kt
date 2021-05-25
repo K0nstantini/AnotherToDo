@@ -1,8 +1,10 @@
 package com.homemade.anothertodo.add_classes
 
+import android.os.Parcel
+import android.os.Parcelable
 import java.util.*
 
-class MyCalendar(private val _milli: Long = 0L) {
+class MyCalendar(private val _milli: Long = 0L) : Parcelable {
 
     private val calendar = Calendar.getInstance().also { it.timeInMillis = _milli }
 
@@ -24,11 +26,31 @@ class MyCalendar(private val _milli: Long = 0L) {
     val minutes: Int
         get() = calendar.get(Calendar.MINUTE)
 
+    constructor(parcel: Parcel) : this(parcel.readLong()) {
+    }
+
     fun set(y: Int = 0, m: Int = 0, d: Int = 0, h: Int = 0, min: Int = 0, s: Int = 0) =
         this.also { calendar.set(y, m, d, h, min, s) }
 
     private fun now() = this.also { calendar.timeInMillis = System.currentTimeMillis() }
 
     fun today() = this.now().set(year, month, day, 0, 0, 0)
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeLong(_milli)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<MyCalendar> {
+        override fun createFromParcel(parcel: Parcel): MyCalendar {
+            return MyCalendar(parcel)
+        }
+
+        override fun newArray(size: Int): Array<MyCalendar?> {
+            return arrayOfNulls(size)
+        }
+    }
 
 }

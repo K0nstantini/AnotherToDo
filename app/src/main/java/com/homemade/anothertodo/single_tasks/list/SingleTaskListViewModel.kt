@@ -1,7 +1,6 @@
 package com.homemade.anothertodo.single_tasks.list
 
 import androidx.lifecycle.*
-import com.homemade.anothertodo.R
 import com.homemade.anothertodo.Repository
 import com.homemade.anothertodo.db.entity.SingleTask
 import com.homemade.anothertodo.utils.Event
@@ -10,7 +9,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class SingleTaskListViewModel @Inject constructor (private val repo: Repository) : ViewModel() {
+class SingleTaskListViewModel @Inject constructor(private val repo: Repository) : ViewModel() {
 
     val tasks: LiveData<List<SingleTask>> = repo.singleTasks.asLiveData()
 
@@ -20,6 +19,9 @@ class SingleTaskListViewModel @Inject constructor (private val repo: Repository)
     private val _navigateToEdit = MutableLiveData<Event<SingleTask?>>()
     val navigateToEdit: LiveData<Event<SingleTask?>> get() = _navigateToEdit
 
+    private val _navigateToAdd = MutableLiveData<Event<Boolean?>>()
+    val navigateToAdd: LiveData<Event<Boolean?>> get() = _navigateToAdd
+
     private val _selectedItem = MutableLiveData<List<Int>>()
     val selectedItem: LiveData<List<Int>> get() = _selectedItem
 
@@ -27,7 +29,9 @@ class SingleTaskListViewModel @Inject constructor (private val repo: Repository)
     val currentItem: SingleTask? get() = _currentItem
 
     fun onAddClicked() {
-        // TODO
+        _navigateToAdd.apply {
+            value = Event(true)
+        }
     }
 
     fun onEditClicked() {
@@ -44,5 +48,4 @@ class SingleTaskListViewModel @Inject constructor (private val repo: Repository)
         _selectedItem.value = listOf()
         _currentItem = null
     }
-
 }

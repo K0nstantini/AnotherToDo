@@ -11,4 +11,11 @@
     <!--    Headers-->
     <string name="header_single_task_list">Разовые задачи</string>
     <string name="title_action_mode">Ред.</string>
+    <string name="title_add_task_new_task">Новая задача</string>
+
+    <!--    Buttons title-->
+    <string name="btn_clear">Очистить</string>
+
+    <!--    Hints-->
+    <string name="hint_edit_text_name">Наименование</string>
 </resources>

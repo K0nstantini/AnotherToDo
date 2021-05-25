@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_marginTop="@dimen/app_margin_norm"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="setting"
+            type="com.homemade.anothertodo.settingItem.SettingItem" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/item_block"
+            style="@style/settings_block_constraint_layout"
+            android:layout_margin="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/item_title"
+                style="@style/settings_title_text"
+                android:textColor="@{setting.enabled ? @color/colorTextPrimary : @color/colorHiddenText}"
+                android:layout_width="0dp"
+                android:text="@{setting.title}"
+                app:layout_constraintEnd_toStartOf="@+id/item_switch"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Настройка" />
+
+            <TextView
+                android:id="@+id/item_text"
+                style="@style/settings_value_text"
+                android:layout_width="0dp"
+                android:textColor="@{setting.enabled ? @color/colorTextDefault : @color/colorHiddenText}"
+                android:text="@{setting.value}"
+                android:visibility="@{setting.showValue ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toStartOf="@+id/item_clear"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/item_title"
+                tools:text="Дополнительно" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/item_switch"
+                style="@style/settings_switch"
+                android:enabled="@{setting.enabled}"
+                android:onClick="@{() -> setting.onSwitchClicked()}"
+                android:checked="@{setting.stateSwitch}"
+                android:visibility="@{setting.showSwitch ? View.VISIBLE : View.GONE}"
+                app:layout_constraintBottom_toBottomOf="@+id/item_title"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/item_clear"
+                style="@style/settings_btn_clear"
+                android:onClick="@{() -> setting.onClearClicked()}"
+                android:text="@string/btn_clear"
+                android:visibility="@{setting.showClear ? View.VISIBLE : View.GONE}"
+                app:layout_constraintBaseline_toBaselineOf="@+id/item_text"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <View
+            android:id="@+id/separator_item"
+            style="@style/separator"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/item_block" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
