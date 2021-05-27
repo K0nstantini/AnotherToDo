@@ -19,7 +19,13 @@ interface SingleTaskDao {
     @Query("DELETE FROM single_task_table")
     suspend fun deleteAll()
 
+    @Query("SELECT * FROM single_task_table WHERE id = :id")
+    fun getTask(id: Int): SingleTask?
+
     @Query("SELECT * FROM single_task_table ORDER BY name ASC")
     fun getTasks(): Flow<List<SingleTask>>
+
+    @Query("SELECT * FROM single_task_table WHERE 'group' = 1 ORDER BY name ASC")
+    fun getGroups(): Flow<List<SingleTask>>
 
 }

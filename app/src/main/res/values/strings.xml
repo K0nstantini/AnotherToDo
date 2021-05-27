@@ -1,8 +1,11 @@
 <resources>
     <string name="app_name">AnotherToDo</string>
 
-    <!--    Меню Navigation Drawer-->
+    <!--    Menu Navigation Drawer-->
     <string name="nav_single_task_list">Разовые задачи</string>
+
+    <!--    Menu action bar-->
+    <string name="save_btn_menu">Сохранить</string>
 
     <!--    Menu Contextual action bar-->
     <string name="task_tree_edit_menu">Редактировать</string>
@@ -18,4 +21,14 @@
 
     <!--    Hints-->
     <string name="hint_edit_text_name">Наименование</string>
+
+    <!--    Settings Items-->
+    <string name="settings_add_single_task_title_group">Группа</string>
+    <string name="settings_add_single_task_title_parent">В группе</string>
+    <string name="settings_main_catalog_text">Основной каталог</string>
+    <string name="settings_add_single_task_title_date_start">Дата начала</string>
+    <string name="settings_add_single_task_title_deadline">Время на выполнение</string>
+    <string name="settings_add_single_task_deadline_zero_text">Укажите время, отведенное на выполнение задачи</string>
+    <string name="settings_add_single_task_deadline_time_hours_text">%dч</string>
+
 </resources>

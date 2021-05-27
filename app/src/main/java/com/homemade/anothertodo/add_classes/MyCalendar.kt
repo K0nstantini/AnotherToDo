@@ -2,6 +2,8 @@ package com.homemade.anothertodo.add_classes
 
 import android.os.Parcel
 import android.os.Parcelable
+import com.homemade.anothertodo.utils.MINUTES_IN_HOUR
+import com.homemade.anothertodo.utils.toStrTime
 import java.util.*
 
 class MyCalendar(private val _milli: Long = 0L) : Parcelable {
@@ -25,6 +27,22 @@ class MyCalendar(private val _milli: Long = 0L) : Parcelable {
 
     val minutes: Int
         get() = calendar.get(Calendar.MINUTE)
+
+    private val time: String
+        get() = (hours * MINUTES_IN_HOUR + minutes).toStrTime()
+
+    // FIXME: Check if use
+    override fun toString(): String {
+        val y = year.toString().padStart(4, '0')
+        val m = (month + 1).toString().padStart(2, '0')
+        val d = day.toString().padStart(2, '0')
+
+        return "$d.$m.$y $time"
+    }
+
+    fun toString(showTime: Boolean): String {
+        return if (showTime) toString() else toString().dropLast(6)
+    }
 
     constructor(parcel: Parcel) : this(parcel.readLong()) {
     }

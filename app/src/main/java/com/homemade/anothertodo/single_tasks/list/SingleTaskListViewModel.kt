@@ -13,6 +13,9 @@ class SingleTaskListViewModel @Inject constructor(private val repo: Repository) 
 
     val tasks: LiveData<List<SingleTask>> = repo.singleTasks.asLiveData()
 
+    private val _showActionMode = MutableLiveData<Event<PrimaryActionModeCallback>>()
+    val showActionMode: LiveData<Event<PrimaryActionModeCallback>> get() = _showActionMode
+
     private var _actionMode = MutableLiveData<PrimaryActionModeCallback?>()
     val actionMode = Transformations.map(_actionMode) { it != null }
 
@@ -42,10 +45,46 @@ class SingleTaskListViewModel @Inject constructor(private val repo: Repository) 
         // TODO
     }
 
+    fun onItemClicked(task: SingleTask) {
+        _actionMode.value?.let {
+            _currentItem = task
+            selectItemActionMode(task)
+        }
+    }
+
+    fun onItemLongClicked(task: SingleTask): Boolean {
+        _currentItem = task
+        if (_actionMode.value == null) {
+            val mode = PrimaryActionModeCallback()
+            _actionMode.value = mode
+            _showActionMode.value = Event(mode)
+            _selectedItem.value = listOf(getPosition(task))
+        } else {
+            selectItemActionMode(task)
+        }
+        return true
+    }
+
+    private fun selectItemActionMode(task: SingleTask) {
+        val list = _selectedItem.value?.toMutableList()
+        val position = getPosition(task)
+        if (list?.contains(position) == true) {
+            list.remove(position)
+            if (list.isNullOrEmpty()) {
+                destroyActionMode()
+            }
+        } else {
+            list?.add(position)
+        }
+        _selectedItem.value = list ?: mutableListOf()
+    }
+
     fun destroyActionMode() {
         _actionMode.value?.finishActionMode()
         _actionMode.value = null
         _selectedItem.value = listOf()
         _currentItem = null
     }
+
+    private fun getPosition(task: SingleTask) = tasks.value?.indexOf(task) ?: -1
 }

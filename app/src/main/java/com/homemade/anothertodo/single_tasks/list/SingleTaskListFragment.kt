@@ -32,14 +32,30 @@ class SingleTaskListFragment : Fragment(R.layout.fragment_single_task_list) {
         binding.recyclerview.adapter = adapter
 
         setObserve()
+        setListeners()
     }
 
     private fun setObserve() = viewModel.apply {
         tasks.observe(viewLifecycleOwner, {
             it?.let { adapter.submitList(it) }
         })
+        selectedItem.observe(viewLifecycleOwner, {
+            it?.let { adapter.setSelections(it) }
+        })
+        showActionMode.observe(viewLifecycleOwner, { event ->
+            event.getContentIfNotHandled()?.let { setActionMode(it) }
+        })
         navigateToAdd.observe(viewLifecycleOwner, { event ->
             event.getContentIfNotHandled()?.let { navigateToAddEdit(null) }
+        })
+    }
+
+    private fun setListeners() {
+        adapter.setOnClickListener(object : SingleTaskListAdapter.ClickListener {
+            override fun onClick(task: SingleTask) = viewModel.onItemClicked(task)
+        })
+        adapter.setOnLongClickListener(object : SingleTaskListAdapter.LongClickListener {
+            override fun onLongClick(task: SingleTask) = viewModel.onItemLongClicked(task)
         })
     }
 
