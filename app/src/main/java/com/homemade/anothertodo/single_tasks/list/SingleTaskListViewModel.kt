@@ -6,6 +6,7 @@ import com.homemade.anothertodo.db.entity.SingleTask
 import com.homemade.anothertodo.utils.Event
 import com.homemade.anothertodo.utils.PrimaryActionModeCallback
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -38,11 +39,18 @@ class SingleTaskListViewModel @Inject constructor(private val repo: Repository) 
     }
 
     fun onEditClicked() {
-        // TODO
+        _navigateToEdit.value = Event(_currentItem)
     }
 
     fun onDeleteClicked() {
-        // TODO
+        viewModelScope.launch {
+            _selectedItem.value?.let { selected ->
+                val items = selected.map { getTask(it) ?: SingleTask() }
+                repo.deleteSingleTasks(items)
+            }
+        }
+        _actionMode.value?.finishActionMode()
+        destroyActionMode()
     }
 
     fun onItemClicked(task: SingleTask) {
@@ -87,4 +95,5 @@ class SingleTaskListViewModel @Inject constructor(private val repo: Repository) 
     }
 
     private fun getPosition(task: SingleTask) = tasks.value?.indexOf(task) ?: -1
+    private fun getTask(index: Int) = tasks.value?.getOrNull(index)
 }

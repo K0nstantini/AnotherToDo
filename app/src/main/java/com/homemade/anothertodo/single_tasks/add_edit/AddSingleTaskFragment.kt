@@ -18,7 +18,7 @@ import com.homemade.anothertodo.settingItem.SettingsAdapter
 import com.homemade.anothertodo.utils.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 
-const val SINGLE_TASK_KEY = "SINGLE_TASK_KEY"
+const val SINGLE_TASK_KEY = "singleTaskKey"
 
 @AndroidEntryPoint
 class AddSingleTaskFragment : Fragment(R.layout.fragment_add_single_task) {

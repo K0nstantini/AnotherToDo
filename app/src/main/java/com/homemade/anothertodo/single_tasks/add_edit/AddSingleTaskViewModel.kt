@@ -15,7 +15,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AddSingleTaskViewModel @Inject constructor(
     private val repo: Repository,
-    private val handle: SavedStateHandle
+    handle: SavedStateHandle
 ) : ViewModel() {
 
     enum class SettingsAddSingleTasks {
@@ -30,7 +30,7 @@ class AddSingleTaskViewModel @Inject constructor(
 
     private val currentTask = handle.get<SingleTask>(SINGLE_TASK_KEY) ?: SingleTask()
 
-    val taskName = MutableLiveData<String>()
+    val taskName = MutableLiveData(currentTask.name)
 
     private val _group = MutableLiveData(currentTask.group)
     val group = Transformations.map(_group) {

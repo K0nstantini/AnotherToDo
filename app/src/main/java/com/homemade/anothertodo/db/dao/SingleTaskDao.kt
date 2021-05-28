@@ -16,6 +16,9 @@ interface SingleTaskDao {
     @Delete
     suspend fun delete(task: SingleTask)
 
+    @Delete
+    suspend fun deleteTasks(tasks: List<SingleTask>)
+
     @Query("DELETE FROM single_task_table")
     suspend fun deleteAll()
 

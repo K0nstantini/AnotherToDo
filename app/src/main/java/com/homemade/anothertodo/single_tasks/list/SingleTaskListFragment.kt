@@ -48,6 +48,9 @@ class SingleTaskListFragment : Fragment(R.layout.fragment_single_task_list) {
         navigateToAdd.observe(viewLifecycleOwner, { event ->
             event.getContentIfNotHandled()?.let { navigateToAddEdit(null) }
         })
+        navigateToEdit.observe(viewLifecycleOwner, { event ->
+            event.getContentIfNotHandled()?.let { navigateToAddEdit(it) }
+        })
     }
 
     private fun setListeners() {
@@ -88,8 +91,8 @@ class SingleTaskListFragment : Fragment(R.layout.fragment_single_task_list) {
     }
 
     private fun navigateToAddEdit(task: SingleTask?) {
-        val action =
-            SingleTaskListFragmentDirections.actionSingleTaskListFragmentToAddSingleTaskFragment()
+        val action = SingleTaskListFragmentDirections
+            .actionSingleTaskListFragmentToAddSingleTaskFragment(task)
         findNavController().navigate(action)
     }
 }

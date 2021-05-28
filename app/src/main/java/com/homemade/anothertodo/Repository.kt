@@ -15,15 +15,17 @@ class Repository @Inject constructor(private val singleTaskDao: SingleTaskDao) {
 
     suspend fun getTask(id: Int) = withContext(Dispatchers.IO) { singleTaskDao.getTask(id) }
 
-//    @Suppress("RedundantSuspendModifier")
+    //    @Suppress("RedundantSuspendModifier")
     @WorkerThread
-    suspend fun insertSingleTask(task: SingleTask) {
-        singleTaskDao.insert(task)
-    }
+    suspend fun insertSingleTask(task: SingleTask) = singleTaskDao.insert(task)
 
     @WorkerThread
-    suspend fun updateSingleTask(task: SingleTask) {
-        singleTaskDao.insert(task)
-    }
+    suspend fun updateSingleTask(task: SingleTask) = singleTaskDao.insert(task)
+
+    @WorkerThread
+    suspend fun deleteSingleTask(task: SingleTask) = singleTaskDao.delete(task)
+
+    @WorkerThread
+    suspend fun deleteSingleTasks(tasks: List<SingleTask>) = singleTaskDao.deleteTasks(tasks)
 
 }
