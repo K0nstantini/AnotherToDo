@@ -15,10 +15,10 @@ import com.homemade.anothertodo.R
 import com.homemade.anothertodo.databinding.FragmentAddSingleTaskBinding
 import com.homemade.anothertodo.settingItem.SettingItem
 import com.homemade.anothertodo.settingItem.SettingsAdapter
+import com.homemade.anothertodo.single_tasks.list.SELECTED_SINGLE_TASK_ID
+import com.homemade.anothertodo.single_tasks.list.SingleTaskListMode
 import com.homemade.anothertodo.utils.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
-
-const val SINGLE_TASK_KEY = "singleTaskKey"
 
 @AndroidEntryPoint
 class AddSingleTaskFragment : Fragment(R.layout.fragment_add_single_task) {
@@ -59,7 +59,7 @@ class AddSingleTaskFragment : Fragment(R.layout.fragment_add_single_task) {
         settings.observe(viewLifecycleOwner, {
             it?.let { adapter.data = it }
         })
-        group.observe(viewLifecycleOwner, {(set, value) ->
+        group.observe(viewLifecycleOwner, { (set, value) ->
             set?.setStateSwitch(value)
             adapter.notifyDataSetChanged()
         })
@@ -88,6 +88,14 @@ class AddSingleTaskFragment : Fragment(R.layout.fragment_add_single_task) {
         navigateToBack.observe(viewLifecycleOwner, { event ->
             event.getContentIfNotHandled()?.let { findNavController().popBackStack() }
         })
+        navigateToParent.observe(viewLifecycleOwner, { event ->
+            event.getContentIfNotHandled()?.let { navigateToParent() }
+        })
+        val handle = findNavController().currentBackStackEntry?.savedStateHandle
+        handle?.getLiveData<Long?>(SELECTED_SINGLE_TASK_ID)?.observe(viewLifecycleOwner) { id ->
+            setParent(id)
+            handle.remove<Long>(SELECTED_SINGLE_TASK_ID)
+        }
     }
 
     private fun setListeners() {
@@ -98,6 +106,13 @@ class AddSingleTaskFragment : Fragment(R.layout.fragment_add_single_task) {
 
     private fun setCloseIcon(mainActivity: FragmentActivity) {
         mainActivity.findViewById<Toolbar>(R.id.topAppBar).setNavigationIcon(R.drawable.ic_close)
+    }
+
+    private fun navigateToParent() {
+        val direction =
+            (AddSingleTaskFragmentDirections)::actionAddSingleTaskFragmentToSingleTaskListFragment
+        val parent = viewModel.parent.value?.second
+        findNavController().navigate(direction(SingleTaskListMode.SELECT_CATALOG, parent))
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {

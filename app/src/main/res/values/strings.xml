@@ -11,8 +11,10 @@
     <string name="task_tree_edit_menu">Редактировать</string>
     <string name="task_tree_delete_menu">Удалить</string>
 
-    <!--    Headers-->
-    <string name="header_single_task_list">Разовые задачи</string>
+    <!--    Fragment Titles-->
+    <string name="title_single_task_list">Разовые задачи</string>
+    <string name="title_single_task_select_catalog">Выберите каталог</string>
+    <string name="title_single_task_select_task">Выберите задачу</string>
     <string name="title_action_mode">Ред.</string>
     <string name="title_add_task_new_task">Новая задача</string>
 

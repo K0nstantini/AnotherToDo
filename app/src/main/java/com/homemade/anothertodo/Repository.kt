@@ -13,7 +13,7 @@ class Repository @Inject constructor(private val singleTaskDao: SingleTaskDao) {
     val singleTasks: Flow<List<SingleTask>> = singleTaskDao.getTasks()
     val singleTasksGroups: Flow<List<SingleTask>> = singleTaskDao.getGroups()
 
-    suspend fun getTask(id: Int) = withContext(Dispatchers.IO) { singleTaskDao.getTask(id) }
+    suspend fun getTask(id: Long) = withContext(Dispatchers.IO) { singleTaskDao.getTask(id) }
 
     //    @Suppress("RedundantSuspendModifier")
     @WorkerThread

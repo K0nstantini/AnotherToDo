@@ -13,4 +13,5 @@
     <color name="colorSeparator">#1F000000</color>
     <color name="colorHiddenText">#C3C3C3</color>
     <color name="colorTextDefault">#8a000000</color>
+    <color name="colorPrimaryDark">#1B203C</color>
 </resources>

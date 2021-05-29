@@ -2,6 +2,8 @@
 <resources>
     <dimen name="normalText">16sp</dimen>
     <dimen name="smallText">14sp</dimen>
+    <dimen name="tree_view_text">20sp</dimen>
     <dimen name="app_margin_norm">16dp</dimen>
     <dimen name="settings_ripple_effect_radius">4dp</dimen>
+    <dimen name="text_size_tree_view">8sp</dimen>
 </resources>

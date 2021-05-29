@@ -7,10 +7,13 @@ import com.homemade.anothertodo.add_classes.MyCalendar
 import com.homemade.anothertodo.db.entity.DEFAULT_DEADLINE_SINGLE_TASK
 import com.homemade.anothertodo.db.entity.SingleTask
 import com.homemade.anothertodo.settingItem.SettingItem
+import com.homemade.anothertodo.single_tasks.list.SELECTED_SINGLE_TASK_ID
 import com.homemade.anothertodo.utils.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+const val SINGLE_TASK_KEY = "singleTaskKey"
 
 @HiltViewModel
 class AddSingleTaskViewModel @Inject constructor(
@@ -52,13 +55,16 @@ class AddSingleTaskViewModel @Inject constructor(
         _settings.value?.get(SettingsAddSingleTasks.DATE_START.ordinal) to (it ?: dateToday)
     }
 
-    private val _deadline = MutableLiveData<Int>(DEFAULT_DEADLINE_SINGLE_TASK)
+    private val _deadline = MutableLiveData(DEFAULT_DEADLINE_SINGLE_TASK)
     val deadline = Transformations.map(_deadline) {
         _settings.value?.get(SettingsAddSingleTasks.DEADLINE.ordinal) to (it ?: 0)
     }
 
     private val _navigateToBack = MutableLiveData<Event<Boolean>>()
     val navigateToBack: LiveData<Event<Boolean>> get() = _navigateToBack
+
+    private val _navigateToParent = MutableLiveData<Event<Boolean>>()
+    val navigateToParent: LiveData<Event<Boolean>> get() = _navigateToParent
 
     init {
         val list = mutableListOf<SettingItem>()
@@ -91,11 +97,15 @@ class AddSingleTaskViewModel @Inject constructor(
     }
 
     private fun onParentClicked() {
-        // TODO
+        _navigateToParent.value = Event(true)
     }
 
     private fun onParentClearClicked() {
         _parent.value = 0
+    }
+
+    fun setParent(id: Long) {
+        _parent.value = id
     }
 
     private fun onGroupClicked() {
