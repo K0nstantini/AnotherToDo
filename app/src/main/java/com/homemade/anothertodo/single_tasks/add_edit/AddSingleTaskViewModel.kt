@@ -22,7 +22,7 @@ class AddSingleTaskViewModel @Inject constructor(
     handle: SavedStateHandle
 ) : BaseViewModel() {
 
-    enum class SettingsAddSingleTasks {
+    enum class Sets {
         PARENT,
         GROUP,
         DATE_START,   // Дата, начиная с которой, задача становиться активной
@@ -38,14 +38,14 @@ class AddSingleTaskViewModel @Inject constructor(
 
     private val _group = MutableLiveData(currentTask.group)
     val group = Transformations.map(_group) {
-        _settings.value?.get(SettingsAddSingleTasks.GROUP.ordinal) to (it ?: false)
+        _settings.value?.get(Sets.GROUP.ordinal) to (it ?: false)
     }
 
     private val _parent = MutableLiveData(currentTask.parent)
     val parent = Transformations.switchMap(_parent) {
         liveData {
             emit(
-                _settings.value?.get(SettingsAddSingleTasks.PARENT.ordinal) to (repo.getTask(it))
+                _settings.value?.get(Sets.PARENT.ordinal) to (repo.getTask(it))
             )
         }
     }
@@ -53,12 +53,12 @@ class AddSingleTaskViewModel @Inject constructor(
     private val dateToday = MyCalendar().today()
     private val _dateStart = MutableLiveData(dateToday)
     val dateStart = Transformations.map(_dateStart) {
-        _settings.value?.get(SettingsAddSingleTasks.DATE_START.ordinal) to (it ?: dateToday)
+        _settings.value?.get(Sets.DATE_START.ordinal) to (it ?: dateToday)
     }
 
     private val _deadline = MutableLiveData(currentTask.deadline)
     val deadline = Transformations.map(_deadline) {
-        _settings.value?.get(SettingsAddSingleTasks.DEADLINE.ordinal) to (it ?: 0)
+        _settings.value?.get(Sets.DEADLINE.ordinal) to (it ?: 0)
     }
 
     private val _navigateToBack = MutableLiveData<Event<Boolean>>()
@@ -70,24 +70,24 @@ class AddSingleTaskViewModel @Inject constructor(
     init {
         val list = mutableListOf<SettingItem>()
         list.add(
-            SettingsAddSingleTasks.PARENT.ordinal,
+            Sets.PARENT.ordinal,
             SettingItem(R.string.settings_add_single_task_title_parent)
                 .setClear(::onParentClearClicked)
                 .setAction(::onParentClicked)
         )
         list.add(
-            SettingsAddSingleTasks.GROUP.ordinal,
+            Sets.GROUP.ordinal,
             SettingItem(R.string.settings_add_single_task_title_group)
                 .setSwitch(::onGroupClicked)
                 .setAction(::onGroupClicked)
         )
         list.add(
-            SettingsAddSingleTasks.DATE_START.ordinal,
+            Sets.DATE_START.ordinal,
             SettingItem(R.string.settings_add_single_task_title_date_start)
                 .setAction(::onsDateStartClicked)
         )
         list.add(
-            SettingsAddSingleTasks.DEADLINE.ordinal,
+            Sets.DEADLINE.ordinal,
             SettingItem(R.string.settings_add_single_task_title_deadline)
                 .setAction(::onDeadlineClicked)
         )
@@ -105,9 +105,7 @@ class AddSingleTaskViewModel @Inject constructor(
         _parent.value = 0
     }
 
-    fun setParent(id: Long) {
-        _parent.value = id
-    }
+    fun setParent(id: Long) = _parent.apply { value = id }
 
     private fun onGroupClicked() {
         _group.value = !(_group.value ?: false)
@@ -127,7 +125,6 @@ class AddSingleTaskViewModel @Inject constructor(
         val dialog = MyInputDialog(::saveDeadline, timeDeadline)
             .setTitle(R.string.alert_title_add_single_task_deadline)
             .setLength(2)
-
         setInputDialog(dialog)
     }
 
@@ -138,9 +135,12 @@ class AddSingleTaskViewModel @Inject constructor(
         return true
     }
 
-    private fun saveTask() = viewModelScope.launch {
+    private fun saveTask() {
         currentTask.setData(taskName, _group, _parent, _dateStart, _deadline)
-        repo.insertSingleTask(currentTask) // FIXME: add update
+        when (currentTask.id) {
+            0L -> insertTaskToBase()
+            else -> updateTaskInBase()
+        }
     }
 
     private fun saveDeadline(value: String) {
@@ -150,9 +150,17 @@ class AddSingleTaskViewModel @Inject constructor(
     private fun setEnabledSettings() {
         val noGroup = !(_group.value ?: false)
         _settings.value?.let { set ->
-            set[SettingsAddSingleTasks.DATE_START.ordinal].setEnabled(noGroup)
-            set[SettingsAddSingleTasks.DEADLINE.ordinal].setEnabled(noGroup)
+            set[Sets.DATE_START.ordinal].setEnabled(noGroup)
+            set[Sets.DEADLINE.ordinal].setEnabled(noGroup)
         }
+    }
+
+    private fun insertTaskToBase() = viewModelScope.launch {
+        repo.insertSingleTask(currentTask)
+    }
+
+    private fun updateTaskInBase() = viewModelScope.launch {
+        repo.updateSingleTask(currentTask)
     }
 
 }

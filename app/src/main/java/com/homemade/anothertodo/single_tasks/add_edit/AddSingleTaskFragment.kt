@@ -1,12 +1,10 @@
 package com.homemade.anothertodo.single_tasks.add_edit
 
-import android.app.Application
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -27,8 +25,7 @@ class AddSingleTaskFragment : Fragment(R.layout.fragment_add_single_task) {
     private val binding by viewBinding(FragmentAddSingleTaskBinding::bind)
     private val viewModel: AddSingleTaskViewModel by viewModels()
 
-    private lateinit var mainActivity: FragmentActivity
-    private lateinit var application: Application
+    private val mainActivity: FragmentActivity by lazy { getMActivity() }
 
     private val adapter: SettingsAdapter = SettingsAdapter()
 
@@ -36,20 +33,17 @@ class AddSingleTaskFragment : Fragment(R.layout.fragment_add_single_task) {
         setHasOptionsMenu(true)
         super.onViewCreated(view, bundle)
 
-        mainActivity = requireNotNull(this.activity)
-        application = mainActivity.application
-
-        setCloseIcon(mainActivity)
-
+        binding.vm = viewModel
+        binding.lifecycleOwner = viewLifecycleOwner
         binding.recyclerview.adapter = adapter
 
+        setCloseIcon(mainActivity)
         setObserve()
         setListeners()
 
-        binding.vm = viewModel
-        binding.lifecycleOwner = viewLifecycleOwner
-
     }
+
+    private fun getMActivity() = requireNotNull(this.activity)
 
     private fun setObserve() = viewModel.apply {
         taskName.observe(viewLifecycleOwner, {

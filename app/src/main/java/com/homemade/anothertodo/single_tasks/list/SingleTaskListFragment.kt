@@ -1,6 +1,5 @@
 package com.homemade.anothertodo.single_tasks.list
 
-import android.app.Application
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -28,29 +27,28 @@ class SingleTaskListFragment : Fragment(R.layout.fragment_single_task_list) {
     private val binding by viewBinding(FragmentSingleTaskListBinding::bind)
     private val viewModel: SingleTaskListViewModel by viewModels()
 
-    private lateinit var mainActivity: FragmentActivity
-    private lateinit var application: Application
+    private val mainActivity: FragmentActivity by lazy { getMActivity() }
 
-    private lateinit var adapter: SingleTaskListAdapter
+    private val adapter: SingleTaskListAdapter = SingleTaskListAdapter()
 
     override fun onViewCreated(view: View, bundle: Bundle?) {
         super.onViewCreated(view, bundle)
         setHasOptionsMenu(true)
 
-        mainActivity = requireNotNull(this.activity)
-        application = mainActivity.application
-
         binding.vm = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
-
-        adapter = SingleTaskListAdapter()
         binding.recyclerview.adapter = adapter
 
-        (mainActivity as AppCompatActivity).supportActionBar?.title = getString(viewModel.title)
-
+        setTitle()
         setObserve()
         setListeners()
     }
+
+    private fun setTitle() {
+        (mainActivity as AppCompatActivity).supportActionBar?.title = getString(viewModel.title)
+    }
+
+    private fun getMActivity() = requireNotNull(this.activity)
 
     private fun setObserve() = viewModel.apply {
         // Отображение задач в recyclerview

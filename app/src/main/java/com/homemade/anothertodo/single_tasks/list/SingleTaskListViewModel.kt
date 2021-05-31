@@ -70,47 +70,44 @@ class SingleTaskListViewModel @Inject constructor(
         destroyActionMode()
     }
 
-
     fun onItemClicked(task: SingleTask) {
         currentTask = task
         when {
             isActionMode -> selectItemActionMode(task)
-            markTaskForSelection(mode, task) -> confirmInSelectCatalog(task)
+            isMarkTaskForSelection(mode, task) -> selectTaskForSelectionMode(task)
             task.group -> setGroupOpenClose(task)
         }
     }
 
-    fun onItemLongClicked(task: SingleTask): Boolean {
-        currentTask = task
-        if (actionMode.value == null) {
-            val mode = PrimaryActionModeCallback()
-            actionMode.value = mode
-            _showActionMode.value = Event(mode)
-            _selectedItems.value = listOf(getPosition(task))
-        } else {
+    fun onItemLongClicked(task: SingleTask) =
+        if (mode.supportLongClick) {
+            currentTask = task
+            if (actionMode.value == null) {
+                setActionMode()
+            }
             selectItemActionMode(task)
+            true
+        } else {
+            false
         }
-        return true
-    }
 
     private fun selectItemActionMode(task: SingleTask) {
-        val list = _selectedItems.value?.toMutableList()
+        val selectedList = _selectedItems.value ?: emptyList()
         val position = getPosition(task)
-        if (list?.contains(position) == true) {
-            list.remove(position)
-            if (list.isNullOrEmpty()) {
-                destroyActionMode()
-            }
-        } else {
-            list?.add(position)
+        _selectedItems.value = if (selectedList.contains(position))
+            selectedList - position
+        else
+            selectedList + position
+        if (_selectedItems.value.isNullOrEmpty()) {
+            destroyActionMode()
         }
-        _selectedItems.value = list ?: mutableListOf()
     }
 
-    private fun markTaskForSelection(mode: SingleTaskListMode, task: SingleTask): Boolean =
-        (mode == SingleTaskListMode.SELECT_CATALOG) ||
-                (mode == SingleTaskListMode.SELECT_TASK && !task.group)
-
+    private fun setActionMode() {
+        val actMode = PrimaryActionModeCallback()
+        actionMode.value = actMode
+        _showActionMode.value = Event(actMode)
+    }
 
     fun destroyActionMode() {
         actionMode.value?.finishActionMode()
@@ -119,13 +116,14 @@ class SingleTaskListViewModel @Inject constructor(
         currentTask = null
     }
 
-    private fun confirmInSelectCatalog(task: SingleTask) {
-        val index = indexTask(task)
-        index?.let {
-            _selectedItems.value = listOf(it)
-            _enabledConfirmMenu.value = index >= 0 &&
-                    !(mode == SingleTaskListMode.SELECT_TASK && task.group)
-        }
+    private fun isMarkTaskForSelection(mode: SingleTaskListMode, task: SingleTask): Boolean =
+        (mode == SingleTaskListMode.SELECT_CATALOG) ||
+                (mode == SingleTaskListMode.SELECT_TASK && !task.group)
+
+    private fun selectTaskForSelectionMode(task: SingleTask) {
+        val position = getPosition(task)
+        _selectedItems.value = listOf(position)
+        _enabledConfirmMenu.value = position >= 0
     }
 
     private fun setGroupOpenClose(task: SingleTask) {
@@ -133,6 +131,7 @@ class SingleTaskListViewModel @Inject constructor(
         updateTaskInBase(task)
     }
 
+    // FIXME: Не чистая ф-я?
     private fun getTasksToShow(
         tasks: List<SingleTask>,
         id: Long = 0,
@@ -159,19 +158,9 @@ class SingleTaskListViewModel @Inject constructor(
         return groups
     }
 
-    private fun updateTaskInBase(task: SingleTask) = viewModelScope.launch {
-        repo.updateSingleTask(task)
-    }
-
-    private fun deleteTasksFromBase(tasks: List<SingleTask>) = viewModelScope.launch {
-        repo.deleteSingleTasks(tasks)
-    }
-
     private fun task(id: Long) = allSingleTasks.value?.find { it.id == id }
-    private fun getPosition(task: SingleTask) = allSingleTasks.value?.indexOf(task) ?: -1
+    private fun getPosition(task: SingleTask) = shownTasks.value?.indexOf(task) ?: -1
     private fun getTask(index: Int): SingleTask? = allSingleTasks.value?.getOrNull(index)
-    private fun indexTask(task: SingleTask) =
-        shownTasks.value?.let { tasks -> tasks.indexOf(tasks.find { it.id == task.id }) }
 
     private fun level(task: SingleTask): Int {
         var level = 0
@@ -182,4 +171,13 @@ class SingleTaskListViewModel @Inject constructor(
         }
         return level
     }
+
+    private fun updateTaskInBase(task: SingleTask) = viewModelScope.launch {
+        repo.updateSingleTask(task)
+    }
+
+    private fun deleteTasksFromBase(tasks: List<SingleTask>) = viewModelScope.launch {
+        repo.deleteSingleTasks(tasks)
+    }
+
 }
