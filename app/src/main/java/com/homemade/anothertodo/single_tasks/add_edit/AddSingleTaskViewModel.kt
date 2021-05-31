@@ -3,11 +3,12 @@ package com.homemade.anothertodo.single_tasks.add_edit
 import androidx.lifecycle.*
 import com.homemade.anothertodo.R
 import com.homemade.anothertodo.Repository
+import com.homemade.anothertodo.add_classes.BaseViewModel
 import com.homemade.anothertodo.add_classes.MyCalendar
 import com.homemade.anothertodo.db.entity.DEFAULT_DEADLINE_SINGLE_TASK
 import com.homemade.anothertodo.db.entity.SingleTask
+import com.homemade.anothertodo.dialogs.MyInputDialog
 import com.homemade.anothertodo.settingItem.SettingItem
-import com.homemade.anothertodo.single_tasks.list.SELECTED_SINGLE_TASK_ID
 import com.homemade.anothertodo.utils.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -19,7 +20,7 @@ const val SINGLE_TASK_KEY = "singleTaskKey"
 class AddSingleTaskViewModel @Inject constructor(
     private val repo: Repository,
     handle: SavedStateHandle
-) : ViewModel() {
+) : BaseViewModel() {
 
     enum class SettingsAddSingleTasks {
         PARENT,
@@ -55,7 +56,7 @@ class AddSingleTaskViewModel @Inject constructor(
         _settings.value?.get(SettingsAddSingleTasks.DATE_START.ordinal) to (it ?: dateToday)
     }
 
-    private val _deadline = MutableLiveData(DEFAULT_DEADLINE_SINGLE_TASK)
+    private val _deadline = MutableLiveData(currentTask.deadline)
     val deadline = Transformations.map(_deadline) {
         _settings.value?.get(SettingsAddSingleTasks.DEADLINE.ordinal) to (it ?: 0)
     }
@@ -118,7 +119,16 @@ class AddSingleTaskViewModel @Inject constructor(
     }
 
     private fun onDeadlineClicked() {
-        // TODO
+        val timeDeadline = when (_deadline.value ?: 0) {
+            0 -> DEFAULT_DEADLINE_SINGLE_TASK
+            else -> _deadline.value
+        }.toString()
+
+        val dialog = MyInputDialog(::saveDeadline, timeDeadline)
+            .setTitle(R.string.alert_title_add_single_task_deadline)
+            .setLength(2)
+
+        setInputDialog(dialog)
     }
 
     fun onSaveClicked(): Boolean {
@@ -131,6 +141,10 @@ class AddSingleTaskViewModel @Inject constructor(
     private fun saveTask() = viewModelScope.launch {
         currentTask.setData(taskName, _group, _parent, _dateStart, _deadline)
         repo.insertSingleTask(currentTask) // FIXME: add update
+    }
+
+    private fun saveDeadline(value: String) {
+        _deadline.value = value.toIntOrNull() ?: 0
     }
 
     private fun setEnabledSettings() {

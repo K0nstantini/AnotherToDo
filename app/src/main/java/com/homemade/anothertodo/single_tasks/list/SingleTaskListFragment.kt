@@ -6,6 +6,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.viewModels
@@ -45,6 +46,8 @@ class SingleTaskListFragment : Fragment(R.layout.fragment_single_task_list) {
         adapter = SingleTaskListAdapter()
         binding.recyclerview.adapter = adapter
 
+        (mainActivity as AppCompatActivity).supportActionBar?.title = getString(viewModel.title)
+
         setObserve()
         setListeners()
     }
@@ -58,7 +61,7 @@ class SingleTaskListFragment : Fragment(R.layout.fragment_single_task_list) {
         levels.observe(viewLifecycleOwner, {
             adapter.setLevels(it)
         })
-        selectedItem.observe(viewLifecycleOwner, {
+        selectedItems.observe(viewLifecycleOwner, {
             it?.let { adapter.setSelections(it) }
         })
         showActionMode.observe(viewLifecycleOwner, { event ->

@@ -6,6 +6,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -34,8 +35,6 @@ class AddSingleTaskFragment : Fragment(R.layout.fragment_add_single_task) {
     override fun onViewCreated(view: View, bundle: Bundle?) {
         setHasOptionsMenu(true)
         super.onViewCreated(view, bundle)
-
-        val taskKey = AddSingleTaskFragmentArgs.fromBundle(requireArguments()).singleTaskKey
 
         mainActivity = requireNotNull(this.activity)
         application = mainActivity.application
@@ -83,6 +82,10 @@ class AddSingleTaskFragment : Fragment(R.layout.fragment_add_single_task) {
             }
             set?.setValue(text)
             adapter.notifyDataSetChanged()
+        })
+
+        showInputDialog.observe(viewLifecycleOwner, { event ->
+            event.getContentIfNotHandled()?.show(mainActivity)
         })
 
         navigateToBack.observe(viewLifecycleOwner, { event ->

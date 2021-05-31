@@ -36,7 +36,7 @@
             android:id="@+id/add_incident"
             style="@style/FloatingButton"
             android:onClick="@{() -> vm.onAddClicked()}"
-            android:visibility="@{vm.actionMode ? View.GONE : View.VISIBLE}"
+            android:visibility="@{vm.showAddButton ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:srcCompat="@drawable/ic_plus"
