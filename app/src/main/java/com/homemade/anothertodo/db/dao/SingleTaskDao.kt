@@ -31,7 +31,13 @@ interface SingleTaskDao {
     @Query("SELECT * FROM single_task_table ORDER BY name ASC")
     fun getTasks(): List<SingleTask>
 
-    @Query("SELECT * FROM single_task_table WHERE 'group' = 1 ORDER BY name ASC")
-    fun getGroups(): Flow<List<SingleTask>>
+    @Query("SELECT COUNT(*) FROM single_task_table WHERE `group` = 0")
+    fun getCountTasks(): Int
+
+    @Query("SELECT * FROM single_task_table WHERE dateActivation > 0")
+    fun getActiveTasks(): List<SingleTask>
+
+    @Query("SELECT * FROM single_task_table WHERE dateActivation = 0")
+    fun getNoActiveTasks(): List<SingleTask>
 
 }

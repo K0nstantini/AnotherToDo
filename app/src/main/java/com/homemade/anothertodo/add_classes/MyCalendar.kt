@@ -7,7 +7,6 @@ import com.homemade.anothertodo.utils.toStrTime
 import java.util.*
 
 class MyCalendar(private val _milli: Long = 0L) : Parcelable {
-
     private val calendar = Calendar.getInstance().also { it.timeInMillis = _milli }
 
     val milli: Long
@@ -31,7 +30,6 @@ class MyCalendar(private val _milli: Long = 0L) : Parcelable {
     private val time: String
         get() = (hours * MINUTES_IN_HOUR + minutes).toStrTime()
 
-    // FIXME: Check if use
     override fun toString(): String {
         val y = year.toString().padStart(4, '0')
         val m = (month + 1).toString().padStart(2, '0')
@@ -44,22 +42,29 @@ class MyCalendar(private val _milli: Long = 0L) : Parcelable {
         return if (showTime) toString() else toString().dropLast(6)
     }
 
-    constructor(parcel: Parcel) : this(parcel.readLong()) {
-    }
-
     fun set(y: Int = 0, m: Int = 0, d: Int = 0, h: Int = 0, min: Int = 0, s: Int = 0) =
         this.also { calendar.set(y, m, d, h, min, s) }
 
-    private fun now() = this.also { calendar.timeInMillis = System.currentTimeMillis() }
+    fun now() = this.also { calendar.timeInMillis = System.currentTimeMillis() }
 
     fun today() = this.now().set(year, month, day, 0, 0, 0)
+
+    fun isEmpty() = milli == 0L
+    fun isNoEmpty() = milli != 0L
+
+    constructor(parcel: Parcel) : this(parcel.readLong())
+
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeLong(_milli)
     }
 
-    override fun describeContents(): Int {
-        return 0
+    operator fun compareTo(other: MyCalendar) = when {
+        milli > other.milli -> 1
+        milli < other.milli -> -1
+        else -> 0
     }
+
+    override fun describeContents() = 0
 
     companion object CREATOR : Parcelable.Creator<MyCalendar> {
         override fun createFromParcel(parcel: Parcel): MyCalendar {

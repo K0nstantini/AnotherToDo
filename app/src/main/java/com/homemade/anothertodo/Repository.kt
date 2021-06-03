@@ -1,7 +1,6 @@
 package com.homemade.anothertodo
 
 import androidx.annotation.WorkerThread
-import androidx.lifecycle.asLiveData
 import com.homemade.anothertodo.db.dao.SingleTaskDao
 import com.homemade.anothertodo.db.entity.SingleTask
 import com.homemade.anothertodo.utils.nestedTasks
@@ -13,11 +12,19 @@ import javax.inject.Inject
 class Repository @Inject constructor(private val singleTaskDao: SingleTaskDao) {
 
     val singleTasksFlow: Flow<List<SingleTask>> = singleTaskDao.getTasksFlow()
-//    private val singleTasks: List<SingleTask> = singleTaskDao.getTasks()
-    val singleTasksGroups: Flow<List<SingleTask>> = singleTaskDao.getGroups()
 
-    suspend fun getTask(id: Long) = withContext(Dispatchers.IO) { singleTaskDao.getTask(id) }
-    suspend fun getTasks() = withContext(Dispatchers.IO) { singleTaskDao.getTasks() }
+    suspend fun getSingleTask(id: Long) = withContext(Dispatchers.IO) { singleTaskDao.getTask(id) }
+
+    suspend fun getActiveSingleTasks() =
+        withContext(Dispatchers.IO) { singleTaskDao.getActiveTasks() }
+
+    suspend fun getNoActiveSingleTasks() =
+        withContext(Dispatchers.IO) { singleTaskDao.getNoActiveTasks() }
+
+    suspend fun countSingleTasks() = withContext(Dispatchers.IO) { singleTaskDao.getCountTasks() }
+
+    suspend fun getSingleTasks() = withContext(Dispatchers.IO) { singleTaskDao.getTasks() }
+
 
     //    @Suppress("RedundantSuspendModifier")
     @WorkerThread
@@ -28,13 +35,13 @@ class Repository @Inject constructor(private val singleTaskDao: SingleTaskDao) {
 
     @WorkerThread
     suspend fun deleteSingleTask(task: SingleTask) {
-        singleTaskDao.deleteTasks(getTasks().nestedTasks(task))
+        singleTaskDao.deleteTasks(getSingleTasks().nestedTasks(task))
     }
 
     @WorkerThread
     suspend fun deleteSingleTasks(tasks: List<SingleTask>) {
         tasks.forEach { task ->
-            singleTaskDao.deleteTasks(getTasks().nestedTasks(task))
+            singleTaskDao.deleteTasks(getSingleTasks().nestedTasks(task))
         }
     }
 

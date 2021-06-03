@@ -45,7 +45,7 @@ class AddSingleTaskViewModel @Inject constructor(
     val parent = Transformations.switchMap(_parent) {
         liveData {
             emit(
-                _settings.value?.get(Sets.PARENT.ordinal) to (repo.getTask(it))
+                _settings.value?.get(Sets.PARENT.ordinal) to (repo.getSingleTask(it))
             )
         }
     }
@@ -163,7 +163,13 @@ class AddSingleTaskViewModel @Inject constructor(
         repo.updateSingleTask(currentTask)
     }
 
+
+    val compose: ((Int) -> Int) -> ((Int) -> Int) -> (Int) -> Int = { x ->
+        { y -> { z -> x(y(z)) } }
+    }
+
 }
+
 
 /**
 var dateUntilToDo: MyCalendar = MyCalendar(),           // Задача должна быть сгенерирована до этой даты

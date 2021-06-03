@@ -1,8 +1,7 @@
 package com.homemade.anothertodo
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.drawerlayout.widget.DrawerLayout
+import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
 import com.homemade.anothertodo.databinding.ActivityMainBinding
@@ -10,14 +9,12 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-    lateinit var binding: ActivityMainBinding
-    private lateinit var drawerLayout: DrawerLayout
+    private val binding by lazy { getMainBinding() }
+    private val drawerLayout by lazy { getDrawer() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        drawerLayout = binding.drawerLayout
         setContentView(binding.root)
         setSupportActionBar(binding.topAppBar)
 
@@ -30,5 +27,8 @@ class MainActivity : AppCompatActivity() {
         val navController = this.findNavController(R.id.navigation_fragment)
         return NavigationUI.navigateUp(navController, drawerLayout)
     }
+
+    private fun getMainBinding() = ActivityMainBinding.inflate(layoutInflater)
+    private fun getDrawer() = binding.drawerLayout
 
 }
