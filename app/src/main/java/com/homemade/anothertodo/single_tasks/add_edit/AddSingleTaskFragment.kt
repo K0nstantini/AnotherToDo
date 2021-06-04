@@ -16,7 +16,7 @@ import com.homemade.anothertodo.settingItem.SettingItem
 import com.homemade.anothertodo.settingItem.SettingsAdapter
 import com.homemade.anothertodo.single_tasks.list.SELECTED_SINGLE_TASK_ID
 import com.homemade.anothertodo.single_tasks.list.SingleTaskListMode
-import com.homemade.anothertodo.utils.viewBinding
+import com.homemade.anothertodo.utils.delegates.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

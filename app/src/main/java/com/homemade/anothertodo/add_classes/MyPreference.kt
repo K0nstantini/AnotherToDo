@@ -2,27 +2,33 @@ package com.homemade.anothertodo.add_classes
 
 import android.content.Context
 import androidx.preference.PreferenceManager
+import com.homemade.anothertodo.utils.delegates.PreferencesDelegate
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
-
-private const val S_DATE_ACTIVATION_SINGLE_TASK = "date_activation_single_task"
-private const val S_FREQUENCY_GENERATION_SINGLE_TASKS = "frequency_single_tasks"
-private const val DEFAULT_FREQUENCY_GENERATE_SINGLE_TASKS = 96 // hours
 
 class MyPreference @Inject constructor(@ApplicationContext context: Context) {
     private val pref = PreferenceManager.getDefaultSharedPreferences(context)
 
-    /** Date activation sTask */
-    fun getDateActivationSingleTask(): MyCalendar =
-        MyCalendar(pref.getLong(S_DATE_ACTIVATION_SINGLE_TASK, 0L))
+    var dateActivationSingleTask: MyCalendar by PreferencesDelegate(
+        pref,
+        PrefKeys.DATE_ACTIVATION_S_TASK,
+        MyCalendar()
+    )
 
-    fun setDateActivationSingleTask(value: MyCalendar) =
-        pref.edit().putLong(S_DATE_ACTIVATION_SINGLE_TASK, value.milli).apply()
+    var frequencySingleTasks: Int by PreferencesDelegate(
+        pref,
+        PrefKeys.FREQUENCY_GENERATION_S_TASKS,
+        DefaultValues.FREQUENCY_GENERATE_S_TASKS
+    )
 
-    /** Frequency generation sTask */
-    fun getFrequencySingleTasks(): Int =
-        pref.getInt(S_FREQUENCY_GENERATION_SINGLE_TASKS, DEFAULT_FREQUENCY_GENERATE_SINGLE_TASKS)
+    companion object {
+        private object PrefKeys {
+            const val DATE_ACTIVATION_S_TASK = "date_activation_single_task"
+            const val FREQUENCY_GENERATION_S_TASKS = "frequency_single_tasks"
+        }
 
-    fun setFrequencySingleTasks(value: Int) =
-        pref.edit().putInt(S_FREQUENCY_GENERATION_SINGLE_TASKS, value).apply()
+        private object DefaultValues {
+            const val FREQUENCY_GENERATE_S_TASKS = 96 // hours
+        }
+    }
 }

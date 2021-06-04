@@ -6,9 +6,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.homemade.anothertodo.R
 import com.homemade.anothertodo.databinding.FragmentMainScreenBinding
-import com.homemade.anothertodo.single_tasks.list.SingleTaskListAdapter
-import com.homemade.anothertodo.single_tasks.list.SingleTaskListViewModel
-import com.homemade.anothertodo.utils.viewBinding
+import com.homemade.anothertodo.utils.delegates.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

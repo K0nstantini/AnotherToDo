@@ -11,16 +11,16 @@ suspend fun setSingleTasks(pref: MyPreference, repo: Repository) {
 
 //    pref.setDateActivationSingleTask(MyCalendar())
 
-    val dateActivation = pref.getDateActivationSingleTask()
+    val dateActivation = pref.dateActivationSingleTask
     val tasks = repo.getSingleTasks()
 
     if (needToSetSingleTasks(dateActivation, tasks)) {
-        val frequency = pref.getFrequencySingleTasks()
+        val frequency = pref.frequencySingleTasks
 
         val listDates = generateDates(frequency, dateActivation)
         listDates.last().also {
             setNotification(it)
-            pref.setDateActivationSingleTask(it)
+            pref.dateActivationSingleTask = it
         }
         activateSingleTasks(listDates.dropLast(1), tasks, repo)
     }

@@ -16,7 +16,7 @@ import com.homemade.anothertodo.db.entity.SingleTask
 import com.homemade.anothertodo.utils.DestroyListener
 import com.homemade.anothertodo.utils.OnActionItemClickListener
 import com.homemade.anothertodo.utils.PrimaryActionModeCallback
-import com.homemade.anothertodo.utils.viewBinding
+import com.homemade.anothertodo.utils.delegates.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 const val SELECTED_SINGLE_TASK_ID = "selectedSingleTaskIDKey"

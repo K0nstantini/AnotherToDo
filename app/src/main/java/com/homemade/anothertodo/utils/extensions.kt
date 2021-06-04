@@ -1,6 +1,10 @@
 package com.homemade.anothertodo.utils
 
+import android.content.SharedPreferences
+import com.homemade.anothertodo.add_classes.MyPreference
 import com.homemade.anothertodo.db.entity.SingleTask
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 
 fun Int.toStrTime(): String {
     return (this / 60).toString().padStart(2, '0') + ':' +

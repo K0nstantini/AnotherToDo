@@ -1,4 +1,4 @@
-package com.homemade.anothertodo.utils
+package com.homemade.anothertodo.utils.delegates
 
 import android.view.View
 import androidx.fragment.app.Fragment
