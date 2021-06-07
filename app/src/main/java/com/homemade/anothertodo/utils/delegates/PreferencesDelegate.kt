@@ -34,6 +34,7 @@ class PreferencesDelegate<TValue>(
                 is Float -> putFloat(name, value)
                 is Long -> putLong(name, value)
                 is String -> putString(name, value)
+                is MyCalendar -> putLong(name, value.milli)
                 else -> throw NotFoundImplementationException(value)
             }
             apply()

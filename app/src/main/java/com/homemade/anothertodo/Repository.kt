@@ -12,6 +12,7 @@ import javax.inject.Inject
 class Repository @Inject constructor(private val singleTaskDao: SingleTaskDao) {
 
     val singleTasksFlow: Flow<List<SingleTask>> = singleTaskDao.getTasksFlow()
+    val singleTasksToDoFlow: Flow<List<SingleTask>> = singleTaskDao.getTasksToDoFlow()
 
     suspend fun getSingleTask(id: Long) = withContext(Dispatchers.IO) { singleTaskDao.getTask(id) }
 

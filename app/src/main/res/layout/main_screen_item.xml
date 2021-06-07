@@ -13,18 +13,42 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/item_background">
+        android:background="?attr/selectableItemBackground">
+
+        <ImageView
+            android:id="@+id/task_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="16dp"
+            android:layout_margin="@dimen/app_margin_norm"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:src="@drawable/ic_s_task"
+            tools:ignore="ContentDescription" />
 
         <TextView
-            android:id="@+id/incident_name"
+            android:id="@+id/task_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/app_margin_norm"
+            android:text="@{singleTask.name}"
+            android:textSize="@dimen/normalText"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/task_icon"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Выбрать плеер" />
+
+        <TextView
+            android:id="@+id/second_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:text="@{singleTask.name}"
-            android:textSize="@dimen/normalText"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Выбрать плеер" />
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="@id/task_name"
+            app:layout_constraintTop_toBottomOf="@id/task_name"
+            tools:text="Срок: 25.06.2021 15:21" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

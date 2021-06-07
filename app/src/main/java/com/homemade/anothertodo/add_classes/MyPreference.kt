@@ -6,6 +6,7 @@ import com.homemade.anothertodo.utils.delegates.PreferencesDelegate
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
+// FIXME: Del?
 class MyPreference @Inject constructor(@ApplicationContext context: Context) {
     private val pref = PreferenceManager.getDefaultSharedPreferences(context)
 
