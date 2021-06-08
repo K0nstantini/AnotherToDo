@@ -13,8 +13,6 @@ import androidx.navigation.fragment.findNavController
 import com.homemade.anothertodo.R
 import com.homemade.anothertodo.databinding.FragmentSingleTaskListBinding
 import com.homemade.anothertodo.db.entity.SingleTask
-import com.homemade.anothertodo.utils.DestroyListener
-import com.homemade.anothertodo.utils.OnActionItemClickListener
 import com.homemade.anothertodo.utils.PrimaryActionModeCallback
 import com.homemade.anothertodo.utils.delegates.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -78,19 +76,15 @@ class SingleTaskListFragment : Fragment(R.layout.fragment_single_task_list) {
     }
 
     private fun setListeners() {
-        adapter.setOnClickListener(object : SingleTaskListAdapter.ClickListener {
-            override fun onClick(task: SingleTask) = viewModel.onItemClicked(task)
-        })
-        adapter.setOnLongClickListener(object : SingleTaskListAdapter.LongClickListener {
-            override fun onLongClick(task: SingleTask) = viewModel.onItemLongClicked(task)
-        })
+        adapter.setOnClickListener { viewModel.onItemClicked(it) }
+        adapter.setOnLongClickListener { viewModel.onItemLongClicked(it) }
     }
 
     private fun setActionMode(callBack: PrimaryActionModeCallback) {
         view?.let {
             callBack.startActionMode(
                 it,
-                R.menu.contextual_action_bar,
+                R.menu.s_task_contextual_action_bar,
                 getString(R.string.title_action_mode)
             )
         }
@@ -105,13 +99,10 @@ class SingleTaskListFragment : Fragment(R.layout.fragment_single_task_list) {
             }
         }
 
-        callBack.onActionItemClickListener = object : OnActionItemClickListener {
-            override fun onActionItemClick(item: MenuItem) = onClick(item)
-        }
-
-        callBack.destroyListener = object : DestroyListener {
-            override fun destroy() = viewModel.destroyActionMode()
-        }
+        callBack.onActionItemClickListener =
+            PrimaryActionModeCallback.OnActionItemClickListener { onClick(it) }
+        callBack.destroyListener =
+            PrimaryActionModeCallback.DestroyListener { viewModel.destroyActionMode() }
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {

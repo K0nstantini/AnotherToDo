@@ -20,11 +20,11 @@ class SingleTaskListAdapter : ListAdapter<SingleTask, SingleTaskListAdapter.View
     private var selectedItems = listOf<Int>()
     private var levels = mapOf<Long, Int>()
 
-    interface ClickListener {
+    fun interface ClickListener {
         fun onClick(task: SingleTask)
     }
 
-    interface LongClickListener {
+    fun interface LongClickListener {
         fun onLongClick(task: SingleTask): Boolean
     }
 

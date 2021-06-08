@@ -3,6 +3,7 @@ package com.homemade.anothertodo.alarm
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import com.homemade.anothertodo.R
 import com.homemade.anothertodo.add_classes.MyCalendar
 import io.karn.notify.Notify
 
@@ -21,8 +22,8 @@ class AlarmReceiver : BroadcastReceiver() {
         Notify
             .with(context)
             .content {
-                this.title = "Set Exact Time"
-                text = "I got triggered at - $message"
+                title = context.getString(R.string.notification_title_task_to_do_default)
+                text = message
             }
             .show()
     }

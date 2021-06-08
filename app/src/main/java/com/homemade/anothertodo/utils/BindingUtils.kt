@@ -6,6 +6,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
 import com.homemade.anothertodo.R
+import com.homemade.anothertodo.add_classes.MyCalendar
 import com.homemade.anothertodo.db.entity.SingleTask
 
 @BindingAdapter("singleTaskImage")
@@ -25,13 +26,21 @@ fun ImageView.setTaskIcon(item: SingleTask?) {
 fun TextView.setTaskListTaskName(item: SingleTask?) {
     item?.let {
         text = item.name
-        this.typeface = if (item.group) {
-            setTextColor(ContextCompat.getColor(this.context, R.color.colorPrimaryDark))
+        typeface = if (item.group) {
+            setTextColor(ContextCompat.getColor(context, R.color.colorPrimaryDark))
             Typeface.DEFAULT_BOLD
         } else {
-            setTextColor(ContextCompat.getColor(this.context, R.color.colorTextDefault))
+            setTextColor(ContextCompat.getColor(context, R.color.colorTextDefault))
             Typeface.DEFAULT
         }
     }
 }
 
+@BindingAdapter("singleTaskDeadline")
+fun TextView.setSingleTaskDeadline(item: SingleTask?) {
+    item?.let {
+        val date = item.dateActivation + MyCalendar(item.deadline.hoursToMilli())
+        val sDate = date.toString(true)
+        text = resources.getString(R.string.main_screen_single_task_second_text, sDate)
+    }
+}

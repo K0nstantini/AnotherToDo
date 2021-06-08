@@ -32,7 +32,10 @@ class Repository @Inject constructor(private val singleTaskDao: SingleTaskDao) {
     suspend fun insertSingleTask(task: SingleTask) = singleTaskDao.insert(task)
 
     @WorkerThread
-    suspend fun updateSingleTask(task: SingleTask) = singleTaskDao.insert(task)
+    suspend fun updateSingleTask(task: SingleTask) = singleTaskDao.update(task)
+
+    @WorkerThread
+    suspend fun updateSingleTasks(tasks: List<SingleTask>) = singleTaskDao.updateTasks(tasks)
 
     @WorkerThread
     suspend fun deleteSingleTask(task: SingleTask) {

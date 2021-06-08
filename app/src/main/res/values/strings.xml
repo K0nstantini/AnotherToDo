@@ -42,6 +42,10 @@
     <!--    Notifications-->
     <string name="single_task_notification_channel_id" translatable="false">s_task_channel</string>
     <string name="single_task_notification_channel_name" translatable="true">SingleTask</string>
-    <string name="notification_title">Another TODO</string>
+    <string name="notification_title_task_to_do_default">Есть новые задачи</string>
+
+
+    <!--    Items texts-->
+    <string name="main_screen_single_task_second_text">Срок: %s</string>
 
 </resources>

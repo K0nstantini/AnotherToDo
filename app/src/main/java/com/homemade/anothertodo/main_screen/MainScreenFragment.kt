@@ -1,15 +1,14 @@
 package com.homemade.anothertodo.main_screen
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.graphics.Color
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.viewModels
 import com.homemade.anothertodo.R
 import com.homemade.anothertodo.databinding.FragmentMainScreenBinding
+import com.homemade.anothertodo.utils.PrimaryActionModeCallback
 import com.homemade.anothertodo.utils.delegates.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -29,10 +28,8 @@ class MainScreenFragment : Fragment(R.layout.fragment_main_screen) {
         binding.lifecycleOwner = viewLifecycleOwner
         binding.recyclerview.adapter = adapter
 
-        createChannel(
-            getString(R.string.single_task_notification_channel_id),
-            getString(R.string.single_task_notification_channel_name)
-        )
+        setObserve()
+        setListeners()
     }
 
     override fun onStart() {
@@ -42,21 +39,36 @@ class MainScreenFragment : Fragment(R.layout.fragment_main_screen) {
 
     private fun getMActivity() = requireNotNull(this.activity)
 
-    private fun createChannel(channelId: String, channelName: String) {
-        val notificationChannel = NotificationChannel(
-            channelId,
-            channelName,
-            NotificationManager.IMPORTANCE_LOW
-        )
-
-        notificationChannel.enableLights(true)
-        notificationChannel.lightColor = Color.RED
-        notificationChannel.enableVibration(true)
-        notificationChannel.description = "Time for the single task"
-
-        val notificationManager =
-            mainActivity.getSystemService(NotificationManager::class.java)
-        notificationManager.createNotificationChannel(notificationChannel)
+    private fun setObserve() = viewModel.apply {
+        singleTasks.observe(viewLifecycleOwner, {
+            it?.let { adapter.submitList(it) }
+        })
+        showActionMode.observe(viewLifecycleOwner, { event ->
+            event.getContentIfNotHandled()?.let { setActionMode(it) }
+        })
     }
 
+    private fun setListeners() {
+        adapter.setOnClickListener { viewModel.onItemClicked(it) }
+    }
+
+    private fun setActionMode(callBack: PrimaryActionModeCallback) {
+        view?.let {
+            callBack.startActionMode(it, R.menu.main_screen_s_task_contextual_action_bar)
+        }
+        setActionModeListeners(callBack)
+    }
+
+    private fun setActionModeListeners(callBack: PrimaryActionModeCallback) {
+        val onClick: (MenuItem) -> Unit = { item ->
+            when (item.itemId) {
+                R.id.menu_done -> viewModel.onDoneClicked()
+            }
+        }
+
+        callBack.onActionItemClickListener =
+            PrimaryActionModeCallback.OnActionItemClickListener { onClick(it) }
+        callBack.destroyListener =
+            PrimaryActionModeCallback.DestroyListener { viewModel.destroyActionMode() }
+    }
 }

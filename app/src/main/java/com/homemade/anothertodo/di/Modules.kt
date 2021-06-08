@@ -1,10 +1,6 @@
 package com.homemade.anothertodo.di
 
-import android.app.NotificationManager
 import android.content.Context
-import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
-import com.homemade.anothertodo.R
 import com.homemade.anothertodo.Repository
 import com.homemade.anothertodo.add_classes.MyPreference
 import com.homemade.anothertodo.alarm.AlarmService

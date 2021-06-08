@@ -13,7 +13,7 @@ class SettingsAdapter : RecyclerView.Adapter<SettingsAdapter.ViewHolder>() {
             notifyDataSetChanged()
         }
 
-    interface ClickListener {
+    fun interface ClickListener {
         fun onClick(settingItem: SettingItem): Unit?
     }
 

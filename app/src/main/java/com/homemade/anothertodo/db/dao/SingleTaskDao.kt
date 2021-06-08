@@ -13,6 +13,9 @@ interface SingleTaskDao {
     @Update
     suspend fun update(task: SingleTask)
 
+    @Update
+    suspend fun updateTasks(tasks: List<SingleTask>)
+
     @Delete
     suspend fun delete(task: SingleTask)
 
@@ -28,7 +31,7 @@ interface SingleTaskDao {
     @Query("SELECT * FROM single_task_table ORDER BY name ASC")
     fun getTasksFlow(): Flow<List<SingleTask>>
 
-    @Query("SELECT * FROM single_task_table WHERE dateActivation > 0 ORDER BY name ASC")
+    @Query("SELECT * FROM single_task_table WHERE dateActivation > 0 ORDER BY dateActivation ASC")
     fun getTasksToDoFlow(): Flow<List<SingleTask>>
 
     @Query("SELECT * FROM single_task_table ORDER BY name ASC")

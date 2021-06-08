@@ -5,23 +5,34 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.homemade.anothertodo.databinding.SingleTaskItemBinding
+import com.homemade.anothertodo.databinding.MainScreenItemBinding
 import com.homemade.anothertodo.db.entity.SingleTask
+import com.homemade.anothertodo.single_tasks.list.SingleTaskListAdapter
 
 class MainScreenAdapter : ListAdapter<SingleTask, MainScreenAdapter.ViewHolder>(
     SingleTaskListDiffCallback()
 ) {
+    private lateinit var clickListener: ClickListener
+
+    fun interface ClickListener {
+        fun onClick(task: SingleTask)
+    }
+
+    fun setOnClickListener(listener: ClickListener) {
+        this.clickListener = listener
+    }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) = with(holder) {
         val item = getItem(adapterPosition)!!
         bind(item)
+        itemView.setOnClickListener { clickListener.onClick(item) }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder.from(parent)
     }
 
-    class ViewHolder private constructor(private val binding: SingleTaskItemBinding) :
+    class ViewHolder private constructor(private val binding: MainScreenItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: SingleTask) {
@@ -32,7 +43,7 @@ class MainScreenAdapter : ListAdapter<SingleTask, MainScreenAdapter.ViewHolder>(
         companion object {
             fun from(parent: ViewGroup): ViewHolder {
                 val layoutInflater = LayoutInflater.from(parent.context)
-                val binding = SingleTaskItemBinding.inflate(layoutInflater, parent, false)
+                val binding = MainScreenItemBinding.inflate(layoutInflater, parent, false)
                 return ViewHolder(binding)
             }
         }

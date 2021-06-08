@@ -25,7 +25,7 @@ data class SingleTask(
 ) : Parcelable {
 
     val readyToActivate: Boolean
-        get() = dateActivation.isEmpty() && dateStart < MyCalendar().now()
+        get() = !group && dateActivation.isEmpty() && dateStart < MyCalendar().now()
 
     private fun setName(_name: LiveData<String>) = _name.value?.let { name = it }
     private fun setGroup(_group: LiveData<Boolean>) = _group.value?.let { group = it }

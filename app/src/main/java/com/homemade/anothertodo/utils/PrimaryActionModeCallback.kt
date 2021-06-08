@@ -7,14 +7,6 @@ import android.view.View
 import androidx.annotation.MenuRes
 import com.homemade.anothertodo.R
 
-interface OnActionItemClickListener {
-    fun onActionItemClick(item: MenuItem)
-}
-
-interface DestroyListener {
-    fun destroy()
-}
-
 
 class PrimaryActionModeCallback : ActionMode.Callback {
 
@@ -27,6 +19,14 @@ class PrimaryActionModeCallback : ActionMode.Callback {
     private var menuResId: Int = 0
     private var title: String? = null
     private var subtitle: String? = null
+
+    fun interface OnActionItemClickListener {
+        fun onActionItemClick(item: MenuItem)
+    }
+
+    fun interface DestroyListener {
+        fun destroy()
+    }
 
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
         this.mode = mode

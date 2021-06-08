@@ -12,7 +12,6 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.homemade.anothertodo.R
 import com.homemade.anothertodo.databinding.FragmentAddSingleTaskBinding
-import com.homemade.anothertodo.settingItem.SettingItem
 import com.homemade.anothertodo.settingItem.SettingsAdapter
 import com.homemade.anothertodo.single_tasks.list.SELECTED_SINGLE_TASK_ID
 import com.homemade.anothertodo.single_tasks.list.SingleTaskListMode
@@ -96,9 +95,7 @@ class AddSingleTaskFragment : Fragment(R.layout.fragment_add_single_task) {
     }
 
     private fun setListeners() {
-        adapter.setOnClickListener(object : SettingsAdapter.ClickListener {
-            override fun onClick(settingItem: SettingItem) = settingItem.action?.invoke()
-        })
+        adapter.setOnClickListener { it.action?.invoke() }
     }
 
     private fun setCloseIcon(mainActivity: FragmentActivity) {

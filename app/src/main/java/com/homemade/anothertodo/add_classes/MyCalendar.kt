@@ -64,6 +64,9 @@ class MyCalendar(private val _milli: Long = 0L) : Parcelable {
         else -> 0
     }
 
+    operator fun minus(other: MyCalendar) = MyCalendar(milli - other.milli)
+    operator fun plus(other: MyCalendar) = MyCalendar(milli + other.milli)
+
     override fun describeContents() = 0
 
     companion object CREATOR : Parcelable.Creator<MyCalendar> {
