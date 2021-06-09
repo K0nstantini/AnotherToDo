@@ -2,7 +2,6 @@ package com.homemade.anothertodo.single_tasks.list
 
 import android.util.TypedValue
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
@@ -45,7 +44,6 @@ class SingleTaskListAdapter : ListAdapter<SingleTask, SingleTaskListAdapter.View
             val offset = resources.getInteger(R.integer.padding_left_tree_view)
             setPadding(level * offset, paddingTop, paddingEnd, paddingBottom)
             val name = findViewById<TextView>(R.id.task_name)
-            val textSize = resources.getDimension(R.dimen.text_size_tree_view)
             name.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20F- level * 2) // FIXME
         }
 

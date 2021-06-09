@@ -1,24 +1,27 @@
 package com.homemade.anothertodo.db
 
 import android.content.Context
-import androidx.room.Database
-import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
+import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.homemade.anothertodo.db.dao.SettingsDao
 import com.homemade.anothertodo.db.dao.SingleTaskDao
+import com.homemade.anothertodo.db.entity.Settings
 import com.homemade.anothertodo.db.entity.SingleTask
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Database(
-    entities = [SingleTask::class],
-    version = 1,
-    exportSchema = false
+    entities = [Settings::class, SingleTask::class],
+    version = 2,
+    exportSchema = false,
+//    autoMigrations = [
+//        AutoMigration(from = 1, to = 2)
+//    ]
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
+    abstract fun SettingsDao(): SettingsDao
     abstract fun SingleTaskDao(): SingleTaskDao
 
     private class AppDatabaseCallback(
@@ -30,8 +33,14 @@ abstract class AppDatabase : RoomDatabase() {
             INSTANCE?.let { database ->
                 scope.launch {
                     populateDatabase(database.SingleTaskDao())
+                    populateDatabase(database.SettingsDao())
                 }
             }
+        }
+
+        suspend fun populateDatabase(dao: SettingsDao) {
+            dao.deleteAll()
+            dao.insert(Settings())
         }
 
         suspend fun populateDatabase(dao: SingleTaskDao) {
@@ -95,7 +104,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "another_to_do_database"
                 )
-//                    .fallbackToDestructiveMigration()
+                    .fallbackToDestructiveMigration()
                     .addCallback(AppDatabaseCallback(scope))
                     .build()
                 INSTANCE = instance

@@ -7,12 +7,12 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.homemade.anothertodo.databinding.MainScreenItemBinding
 import com.homemade.anothertodo.db.entity.SingleTask
-import com.homemade.anothertodo.single_tasks.list.SingleTaskListAdapter
 
 class MainScreenAdapter : ListAdapter<SingleTask, MainScreenAdapter.ViewHolder>(
     SingleTaskListDiffCallback()
 ) {
     private lateinit var clickListener: ClickListener
+    private var selectedPosition = -1
 
     fun interface ClickListener {
         fun onClick(task: SingleTask)
@@ -24,12 +24,21 @@ class MainScreenAdapter : ListAdapter<SingleTask, MainScreenAdapter.ViewHolder>(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) = with(holder) {
         val item = getItem(adapterPosition)!!
+
+        itemView.apply {
+            isActivated = selectedPosition == adapterPosition
+            setOnClickListener { clickListener.onClick(item) }
+        }
+
         bind(item)
-        itemView.setOnClickListener { clickListener.onClick(item) }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder.from(parent)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder.from(parent)
+
+    fun setSelections(taskPosition: Int) {
+        notifyItemChanged(selectedPosition)
+        selectedPosition = taskPosition
+        notifyItemChanged(selectedPosition)
     }
 
     class ViewHolder private constructor(private val binding: MainScreenItemBinding) :

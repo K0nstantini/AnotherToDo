@@ -1,7 +1,9 @@
 package com.homemade.anothertodo
 
 import androidx.annotation.WorkerThread
+import com.homemade.anothertodo.db.dao.SettingsDao
 import com.homemade.anothertodo.db.dao.SingleTaskDao
+import com.homemade.anothertodo.db.entity.Settings
 import com.homemade.anothertodo.db.entity.SingleTask
 import com.homemade.anothertodo.utils.nestedTasks
 import kotlinx.coroutines.Dispatchers
@@ -9,7 +11,26 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class Repository @Inject constructor(private val singleTaskDao: SingleTaskDao) {
+class Repository @Inject constructor(
+    private val settingsDao: SettingsDao,
+    private val singleTaskDao: SingleTaskDao
+) {
+
+    /** Settings */
+
+    val settingsFlow: Flow<List<Settings>> = settingsDao.getSettingsFlow()
+
+    @WorkerThread
+    suspend fun insertSettings() = settingsDao.insert(Settings())
+
+    @WorkerThread
+    suspend fun updateSettings(set: Settings) = settingsDao.update(set)
+
+    suspend fun getSettings() = withContext(Dispatchers.IO) { settingsDao.getSettings() }
+
+    /** ======================================================================================= */
+
+    /** Single tasks */
 
     val singleTasksFlow: Flow<List<SingleTask>> = singleTaskDao.getTasksFlow()
     val singleTasksToDoFlow: Flow<List<SingleTask>> = singleTaskDao.getTasksToDoFlow()
@@ -48,5 +69,8 @@ class Repository @Inject constructor(private val singleTaskDao: SingleTaskDao) {
             singleTaskDao.deleteTasks(getSingleTasks().nestedTasks(task))
         }
     }
+
+    /** ======================================================================================= */
+
 
 }

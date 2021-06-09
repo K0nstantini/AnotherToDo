@@ -5,6 +5,7 @@ import com.homemade.anothertodo.Repository
 import com.homemade.anothertodo.add_classes.MyPreference
 import com.homemade.anothertodo.alarm.AlarmService
 import com.homemade.anothertodo.db.AppDatabase
+import com.homemade.anothertodo.db.dao.SettingsDao
 import com.homemade.anothertodo.db.dao.SingleTaskDao
 import dagger.Module
 import dagger.Provides
@@ -21,13 +22,20 @@ object Modules {
 
     @Provides
     @Singleton
+    fun provideSettingsDao(@ApplicationContext appContext: Context): SettingsDao {
+        return AppDatabase.getDatabase(appContext, CoroutineScope(SupervisorJob())).SettingsDao()
+    }
+
+    @Provides
+    @Singleton
     fun provideSingleTaskDao(@ApplicationContext appContext: Context): SingleTaskDao {
         return AppDatabase.getDatabase(appContext, CoroutineScope(SupervisorJob())).SingleTaskDao()
     }
 
     @Provides
     @Singleton
-    fun provideRepository(singleTaskDao: SingleTaskDao) = Repository(singleTaskDao)
+    fun provideRepository(settingsDao: SettingsDao, singleTaskDao: SingleTaskDao) =
+        Repository(settingsDao, singleTaskDao)
 
     @Provides
     @Singleton

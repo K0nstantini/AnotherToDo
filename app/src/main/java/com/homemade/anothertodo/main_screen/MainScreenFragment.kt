@@ -43,8 +43,14 @@ class MainScreenFragment : Fragment(R.layout.fragment_main_screen) {
         singleTasks.observe(viewLifecycleOwner, {
             it?.let { adapter.submitList(it) }
         })
+        currentTaskPosition.observe(viewLifecycleOwner, {
+            it?.let { adapter.setSelections(it) }
+        })
         showActionMode.observe(viewLifecycleOwner, { event ->
             event.getContentIfNotHandled()?.let { setActionMode(it) }
+        })
+        showConfirmDialog.observe(viewLifecycleOwner, { event ->
+            event.getContentIfNotHandled()?.show(mainActivity)
         })
     }
 
@@ -54,7 +60,8 @@ class MainScreenFragment : Fragment(R.layout.fragment_main_screen) {
 
     private fun setActionMode(callBack: PrimaryActionModeCallback) {
         view?.let {
-            callBack.startActionMode(it, R.menu.main_screen_s_task_contextual_action_bar)
+            callBack.startActionMode(it, R.menu.main_screen_s_task_contextual_action_bar,
+            viewModel.currentTaskName)
         }
         setActionModeListeners(callBack)
     }

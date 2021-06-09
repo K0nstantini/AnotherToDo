@@ -4,7 +4,7 @@
 
     <item
         android:id="@+id/menu_done"
-        android:icon="@drawable/ic_confirm_change"
+        android:icon="@drawable/ic_done"
         android:title="@string/task_tree_edit_menu"
         app:showAsAction="ifRoom" />
 
