@@ -1,6 +1,7 @@
 package com.homemade.anothertodo
 
 import androidx.annotation.WorkerThread
+import androidx.lifecycle.asLiveData
 import com.homemade.anothertodo.db.dao.SettingsDao
 import com.homemade.anothertodo.db.dao.SingleTaskDao
 import com.homemade.anothertodo.db.entity.Settings
@@ -18,7 +19,8 @@ class Repository @Inject constructor(
 
     /** Settings */
 
-    val settingsFlow: Flow<List<Settings>> = settingsDao.getSettingsFlow()
+    private val settingsFlow: Flow<List<Settings>> = settingsDao.getSettingsFlow()
+    val settings: Settings get() = settingsFlow.asLiveData().value?.getOrNull(0) ?: Settings()
 
     @WorkerThread
     suspend fun insertSettings() = settingsDao.insert(Settings())

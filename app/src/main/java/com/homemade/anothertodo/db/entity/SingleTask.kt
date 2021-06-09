@@ -21,7 +21,8 @@ data class SingleTask(
     var group: Boolean = false,
     var groupOpen: Boolean = false,
     var parent: Long = 0L,
-    var toDoAfterTask: Int = 0                              // Задача будет сегенрирована только после выполнения другой задачи
+    var toDoAfterTask: Long = 0L,                            // Задача будет сегенрирована только после выполнения другой задачи
+    var rolls: Int = 0,                                      // количество замен задачи
 ) : Parcelable {
 
     val readyToActivate: Boolean

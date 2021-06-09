@@ -5,8 +5,8 @@ import com.homemade.anothertodo.R
 import com.homemade.anothertodo.Repository
 import com.homemade.anothertodo.add_classes.BaseViewModel
 import com.homemade.anothertodo.add_classes.MyCalendar
-import com.homemade.anothertodo.add_classes.MyPreference
 import com.homemade.anothertodo.alarm.AlarmService
+import com.homemade.anothertodo.db.entity.Settings
 import com.homemade.anothertodo.db.entity.SingleTask
 import com.homemade.anothertodo.dialogs.MyConfirmAlertDialog
 import com.homemade.anothertodo.single_tasks.getDatesToActivateSingleTasks
@@ -20,9 +20,10 @@ import javax.inject.Inject
 @HiltViewModel
 class MainScreenViewModel @Inject constructor(
     private val repo: Repository,
-    private val pref: MyPreference,
     private val alarmService: AlarmService
 ) : BaseViewModel() {
+
+    private val settings: Settings = repo.settings
 
     val singleTasks: LiveData<List<SingleTask>> = repo.singleTasksToDoFlow.asLiveData()
 
@@ -39,18 +40,17 @@ class MainScreenViewModel @Inject constructor(
 //        delClearData()
 //        return@launch
         val tasks = repo.getSingleTasks()
-        val lastDateActivation = pref.dateActivationSingleTask
-        if (needToActivateSingleTasks(tasks, lastDateActivation)) {
+        if (needToActivateSingleTasks(tasks, settings.singleTask.dateActivation)) {
 
             val dates = getDatesToActivateSingleTasks(
                 tasks,
-                pref.frequencySingleTasks,
-                lastDateActivation
+                settings.singleTask.frequency,
+                settings.singleTask.dateActivation
             )
 
             val lastDate = dates.last()
             alarmService.setExactAlarm(lastDate)
-            pref.dateActivationSingleTask = lastDate
+            settings.apply { singleTask.dateActivation = lastDate }.update()
 
             getTasksToUpdateDatesActivation(tasks, dates).update()
         }
@@ -58,7 +58,7 @@ class MainScreenViewModel @Inject constructor(
 
     // FIXME: Del
     private suspend fun delClearData() {
-        pref.dateActivationSingleTask = MyCalendar()
+        settings.apply { singleTask.dateActivation = MyCalendar() }.update()
         repo.getSingleTasks().filter { it.dateActivation.isNoEmpty() }.forEach { task ->
             task.dateActivation = MyCalendar()
             repo.updateSingleTask(task)
@@ -104,8 +104,10 @@ class MainScreenViewModel @Inject constructor(
 
 
     private suspend fun List<SingleTask>.update() = repo.updateSingleTasks(this)
+
     private fun deleteSingleTaskFromBase(task: SingleTask) = viewModelScope.launch {
         repo.deleteSingleTask(task)
     }
 
+    private fun Settings.update() = viewModelScope.launch { repo.updateSettings(this@update) }
 }

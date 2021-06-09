@@ -2,7 +2,6 @@ package com.homemade.anothertodo.di
 
 import android.content.Context
 import com.homemade.anothertodo.Repository
-import com.homemade.anothertodo.add_classes.MyPreference
 import com.homemade.anothertodo.alarm.AlarmService
 import com.homemade.anothertodo.db.AppDatabase
 import com.homemade.anothertodo.db.dao.SettingsDao
@@ -36,10 +35,6 @@ object Modules {
     @Singleton
     fun provideRepository(settingsDao: SettingsDao, singleTaskDao: SingleTaskDao) =
         Repository(settingsDao, singleTaskDao)
-
-    @Provides
-    @Singleton
-    fun providePreference(@ApplicationContext appContext: Context) = MyPreference(appContext)
 
     @Provides
     @Singleton
