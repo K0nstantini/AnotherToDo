@@ -22,10 +22,11 @@ data class Settings(
         var rewards: Boolean = true,                                                    // включение системы наказаний/вознаграждений
         var points: Int = 0,                                                            // баллы завыполнение/невыполнение задач
         var pointsForTask: Int = POINTS_FOR_TASK,                                       // баллы за выполнение запланированной задачи
-        var pointsForOutOfOrderTask: Int = POINTS_FOR_OUT_OF_ORDER_TASK,                // баллы внеочередное выполнение задачи
-        var daysToConsiderTaskOld: Int = DAYS_TO_CONSIDER_TASK_OLD,                     // Количество дней жизни задачи чтобы считать ее пригодной для внеочередного выполнения (заработать баллы)
+        var pointsForOutOfOrderTask: Int = POINTS_FOR_OUT_OF_ORDER_TASK,                // баллы за внеочередное выполнение задачи
+        var daysToConsiderTaskOld: Int = DAYS_TO_CONSIDER_TASK_OLD,                     // количество дней жизни задачи чтобы считать ее пригодной для внеочередного выполнения (заработать баллы)
         var pointsForRoll: Int = POINTS_FOR_ROLL,                                       // баллы за рандомную замену текущей задачи
-        var numberPossibleRolls: Int = NUMBER_POSSIBLE_ROLLS,                           // сколько раз можно заменять текущую задачу
+        var numberPossibleRolls: Int = NUMBER_POSSIBLE_ROLLS,                           // сколько раз можно заменять одну задачу
+        var currentTaskTakePartInRoll: Boolean = true,                                  // текущая задача учавствует при генерации новой задачи (т. е. замена может не сработать)
         var postponeCurrentTaskForOnePoint: Int = POSTPONE_CURRENT_TASK_FOR_ONE_POINT,  // количество часов, на которые можно отложить текущую задачу за 1 балл
         var postponeNextTaskForOnePoint: Int = POSTPONE_NEXT_TASK_FOR_ONE_POINT,        // количество часов, на которые можно отложить следующую задачу за 1 балл
     ) {

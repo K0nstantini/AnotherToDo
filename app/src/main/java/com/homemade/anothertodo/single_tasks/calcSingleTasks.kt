@@ -52,7 +52,9 @@ fun getTasksToUpdateDatesActivation(
 
 
 private fun generateTask(tasks: List<SingleTask>, parent: Long = 0L): SingleTask? {
-    val task = tasks.filter { it.parent == parent && it.dateActivation.isEmpty() }.randomOrNull()
+    val task = tasks.filter { it.parent == parent && it.dateActivation.isEmpty() }
+        .shuffled()
+        .randomOrNull()
     return when {
         task == null -> null
         task.group -> generateTask(tasks, task.id)

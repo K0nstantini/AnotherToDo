@@ -12,7 +12,6 @@ import com.homemade.anothertodo.dialogs.MyConfirmAlertDialog
 import com.homemade.anothertodo.single_tasks.getDatesToActivateSingleTasks
 import com.homemade.anothertodo.single_tasks.getTasksToUpdateDatesActivation
 import com.homemade.anothertodo.utils.Event
-import com.homemade.anothertodo.utils.PrimaryActionModeCallback
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -25,25 +24,36 @@ class MainScreenViewModel @Inject constructor(
 
     private val settings: Settings = repo.settings
 
-    val singleTasks: LiveData<List<SingleTask>> = repo.singleTasksToDoFlow.asLiveData()
+    private val singleTasksLive: LiveData<List<SingleTask>> = repo.singleTasksFlow.asLiveData()
+    val shownSingleTasks = Transformations.map(singleTasksLive) { tasks ->
+        tasks.filter { it.dateActivation.isNoEmpty() }.sortedBy { it.dateActivation.milli }
+    }
+    private val singleTasks: List<SingleTask> get() = singleTasksLive.value ?: emptyList()
 
-    private val _showActionMode = MutableLiveData<Event<PrimaryActionModeCallback>>()
-    val showActionMode: LiveData<Event<PrimaryActionModeCallback>> get() = _showActionMode
+    private var isActionMode: Boolean = false
 
-    private var actionMode = MutableLiveData<PrimaryActionModeCallback?>(null)
+    private val _showActionMode = MutableLiveData<Event<Boolean>>()
+    val showActionMode: LiveData<Event<Boolean>> get() = _showActionMode
+
+    private val _hideActionMode = MutableLiveData<Event<Boolean>>()
+    val hideActionMode: LiveData<Event<Boolean>> get() = _hideActionMode
+
 
     private var currentTask = MutableLiveData<SingleTask?>(null)
     val currentTaskName: String get() = currentTask.value?.name ?: String()
     val currentTaskPosition = Transformations.map(currentTask) { it?.position() ?: -1 }
 
-    fun initData() = viewModelScope.launch {
+    fun initData() {
+        setSingleTasks()
+    }
+
+    private fun setSingleTasks() = viewModelScope.launch {
 //        delClearData()
 //        return@launch
-        val tasks = repo.getSingleTasks()
-        if (needToActivateSingleTasks(tasks, settings.singleTask.dateActivation)) {
+        if (needToActivateSingleTasks(singleTasks, settings.singleTask.dateActivation)) {
 
             val dates = getDatesToActivateSingleTasks(
-                tasks,
+                singleTasks,
                 settings.singleTask.frequency,
                 settings.singleTask.dateActivation
             )
@@ -52,62 +62,106 @@ class MainScreenViewModel @Inject constructor(
             alarmService.setExactAlarm(lastDate)
             settings.apply { singleTask.dateActivation = lastDate }.update()
 
-            getTasksToUpdateDatesActivation(tasks, dates).update()
+            getTasksToUpdateDatesActivation(singleTasks, dates).update()
         }
     }
 
     // FIXME: Del
     private suspend fun delClearData() {
         settings.apply { singleTask.dateActivation = MyCalendar() }.update()
-        repo.getSingleTasks().filter { it.dateActivation.isNoEmpty() }.forEach { task ->
-            task.dateActivation = MyCalendar()
-            repo.updateSingleTask(task)
+        val tasks = repo.getSingleTasks()
+        tasks.filter { it.dateActivation.isNoEmpty() }.forEach { task ->
+            task.apply { dateActivation = MyCalendar() }.update()
+        }
+        tasks.filter { it.rolls > 0 }.forEach { task ->
+            task.apply { rolls = 0 }.update()
         }
     }
 
     fun onItemClicked(task: SingleTask) {
         currentTask.value = task
-        if (actionMode.value == null) {
-            setActionMode()
+        if (isActionMode) destroyActionMode() else setActionMode()
+    }
+
+    fun onPostponeClicked() {
+        TODO()
+    }
+
+    fun onRollClicked() {
+        if (settings.singleTask.points < settings.singleTask.pointsForRoll) {
+            setMessage(R.string.message_roll_not_enough_points)
         } else {
-            destroyActionMode()
+            val dialog = MyConfirmAlertDialog(::rollSingleTask)
+                .setTitle(currentTaskName)
+                .setMessage(R.string.alert_title_single_task_roll)
+            setConfirmDialog(dialog)
         }
     }
 
     fun onDoneClicked() {
-        val dialog = MyConfirmAlertDialog(::deleteSingleTask)
+        val dialog = MyConfirmAlertDialog(::doneSingleTask)
             .setTitle(currentTaskName)
             .setMessage(R.string.alert_title_single_task_done)
         setConfirmDialog(dialog)
     }
 
-    private fun deleteSingleTask() {
-//        currentTask.value?.let { deleteSingleTaskFromBase(it) } // FIXME
+    private fun rollSingleTask() {
+        val filteredTasks = { singleTasks.filter { it.readyToActivate } }
+        val tasksInRoll = when (settings.singleTask.currentTaskTakePartInRoll) {
+            true -> filteredTasks() + currentTask.value
+            false -> filteredTasks()
+        }
+        val newTask = tasksInRoll.shuffled().randomOrNull()
+        val oldTask = currentTask.value
+        if (newTask == null) {
+            setMessage(R.string.message_roll_not_find_task)
+        } else if (oldTask != null) {
+            newTask.apply { dateActivation = oldTask.dateActivation }.update()
+            oldTask.apply {
+                dateActivation = MyCalendar()
+                rolls++
+            }.update()
+            settings.addPoints(settings.singleTask.pointsForRoll)
+            destroyActionMode()
+        }
     }
 
+    private fun doneSingleTask() {
+//        currentTask.value?.delete()
+        if (settings.singleTask.rewards) {
+            settings.addPoints(settings.singleTask.pointsForTask)
+        }
+        destroyActionMode()
+    }
+
+    private fun Settings.addPoints(points: Int) = apply { singleTask.points += points }.update()
+
     private fun setActionMode() {
-        val actMode = PrimaryActionModeCallback()
-        actionMode.value = actMode
-        _showActionMode.value = Event(actMode)
+        _showActionMode.value = Event(true)
+        isActionMode = true
     }
 
     fun destroyActionMode() {
-        actionMode.value?.finishActionMode()
-        actionMode.value = null
-        currentTask.value = null
+        if (isActionMode) {
+            isActionMode = false
+            currentTask.value = null
+            _hideActionMode.value = Event(true)
+        }
     }
 
     private fun needToActivateSingleTasks(tasks: List<SingleTask>, date: MyCalendar) =
         date < MyCalendar().now() && tasks.any { it.readyToActivate }
 
-    private fun SingleTask.position() = singleTasks.value?.indexOf(this) ?: -1
+    private fun SingleTask.position() = shownSingleTasks.value?.indexOf(this) ?: -1
 
+    private fun SingleTask.update() =
+        viewModelScope.launch { repo.updateSingleTask(this@update) }
 
-    private suspend fun List<SingleTask>.update() = repo.updateSingleTasks(this)
+    private fun List<SingleTask>.update() =
+        viewModelScope.launch { repo.updateSingleTasks(this@update) }
 
-    private fun deleteSingleTaskFromBase(task: SingleTask) = viewModelScope.launch {
-        repo.deleteSingleTask(task)
-    }
+    private fun SingleTask.delete() =
+        viewModelScope.launch { repo.deleteSingleTask(this@delete) }
 
     private fun Settings.update() = viewModelScope.launch { repo.updateSettings(this@update) }
 }

@@ -1,6 +1,11 @@
 package com.homemade.anothertodo.utils
 
+import android.widget.Toast
+import androidx.fragment.app.FragmentActivity
 import com.homemade.anothertodo.db.entity.SingleTask
+
+fun FragmentActivity.toast(res: Int) =
+    Toast.makeText(this, this.getString(res), Toast.LENGTH_SHORT).show()
 
 fun Int.toStrTime(): String {
     return (this / 60).toString().padStart(2, '0') + ':' +

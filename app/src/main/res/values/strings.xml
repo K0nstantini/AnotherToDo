@@ -39,6 +39,7 @@
     <!--    Alert-->
     <string name="alert_title_add_single_task_deadline">Время на выполнение (ч)</string>
     <string name="alert_title_single_task_done">Отметить задачу выполненной и удалить?</string>
+    <string name="alert_title_single_task_roll">Заменить текущую задачу?</string>
 
     <!--    Notifications-->
     <string name="single_task_notification_channel_id" translatable="false">s_task_channel</string>
@@ -48,5 +49,9 @@
 
     <!--    Items texts-->
     <string name="main_screen_single_task_second_text">Срок: %s</string>
+
+    <!--    Messages-->
+    <string name="message_roll_not_find_task">Не найдено подходящих задач</string>
+    <string name="message_roll_not_enough_points">Недостаточно баллов для смены задачи</string>
 
 </resources>
