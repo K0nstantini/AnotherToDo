@@ -3,16 +3,18 @@ package com.homemade.anothertodo.db
 import android.content.Context
 import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.homemade.anothertodo.db.dao.RegularTaskDao
 import com.homemade.anothertodo.db.dao.SettingsDao
 import com.homemade.anothertodo.db.dao.SingleTaskDao
+import com.homemade.anothertodo.db.entity.RegularTask
 import com.homemade.anothertodo.db.entity.Settings
 import com.homemade.anothertodo.db.entity.SingleTask
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Database(
-    entities = [Settings::class, SingleTask::class],
-    version = 2,
+    entities = [Settings::class, SingleTask::class, RegularTask::class],
+    version = 1,
     exportSchema = false,
 //    autoMigrations = [
 //        AutoMigration(from = 1, to = 2)
@@ -23,6 +25,7 @@ abstract class AppDatabase : RoomDatabase() {
 
     abstract fun SettingsDao(): SettingsDao
     abstract fun SingleTaskDao(): SingleTaskDao
+    abstract fun RegularTaskDao(): RegularTaskDao
 
     private class AppDatabaseCallback(
         private val scope: CoroutineScope
@@ -80,10 +83,12 @@ abstract class AppDatabase : RoomDatabase() {
             val mOthers = dao.insert(SingleTask(name = "Прочее", parent = music, group = true))
             dao.insert(SingleTask(name = "Подключить синтезатор", parent = mOthers))
             dao.insert(SingleTask(name = "Найти/заказать дисковод/дискеты", parent = mOthers))
+            dao.insert(SingleTask(name = "Выбрать 'песню' для аранжировки", parent = mOthers))
 
             val mPractice = dao.insert(SingleTask(name = "Практика", parent = music, group = true))
             dao.insert(SingleTask(name = "Сольфеджио", parent = mPractice))
             dao.insert(SingleTask(name = "Электрогитара", parent = mPractice))
+            dao.insert(SingleTask(name = "Тренажер слуха", parent = mPractice))
 
             val mTheory = dao.insert(SingleTask(name = "Теория", parent = music, group = true))
             dao.insert(SingleTask(name = "Дослушать Баха", parent = mTheory))

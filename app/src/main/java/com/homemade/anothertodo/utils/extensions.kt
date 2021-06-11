@@ -3,6 +3,7 @@ package com.homemade.anothertodo.utils
 import android.app.Application
 import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
+import com.homemade.anothertodo.add_classes.BaseTask
 import com.homemade.anothertodo.db.entity.SingleTask
 
 fun FragmentActivity.toast(res: Int) =
@@ -18,10 +19,19 @@ fun Int.toArray(app: Application): Array<String> = app.resources.getStringArray(
 fun Int.hoursToMilli(): Long = this.toLong() * MINUTES_IN_HOUR * SECONDS_IN_MINUTE * MILLI_IN_SECOND
 
 //FIXME: Не чистая ф-я?
-fun List<SingleTask>.nestedTasks(
-    task: SingleTask,
-    list: MutableList<SingleTask> = mutableListOf()
-): List<SingleTask> {
+//fun List<SingleTask>.nestedTasks(
+//    task: SingleTask,
+//    list: MutableList<SingleTask> = mutableListOf()
+//): List<SingleTask> {
+//    list.add(task)
+//    this.filter { it.parent == task.id }.forEach { this.nestedTasks(it, list) }
+//    return list
+//}
+
+fun <T : BaseTask> List<T>.nestedTasks(
+    task: T,
+    list: MutableList<T> = mutableListOf()
+): List<T> {
     list.add(task)
     this.filter { it.parent == task.id }.forEach { this.nestedTasks(it, list) }
     return list

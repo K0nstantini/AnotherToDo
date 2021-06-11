@@ -1,9 +1,10 @@
 package com.homemade.anothertodo
 
 import androidx.annotation.WorkerThread
-import androidx.lifecycle.asLiveData
+import com.homemade.anothertodo.db.dao.RegularTaskDao
 import com.homemade.anothertodo.db.dao.SettingsDao
 import com.homemade.anothertodo.db.dao.SingleTaskDao
+import com.homemade.anothertodo.db.entity.RegularTask
 import com.homemade.anothertodo.db.entity.Settings
 import com.homemade.anothertodo.db.entity.SingleTask
 import com.homemade.anothertodo.utils.nestedTasks
@@ -14,7 +15,8 @@ import javax.inject.Inject
 
 class Repository @Inject constructor(
     private val settingsDao: SettingsDao,
-    private val singleTaskDao: SingleTaskDao
+    private val singleTaskDao: SingleTaskDao,
+    private val regularTaskDao: RegularTaskDao,
 ) {
 
     /** Settings */
@@ -51,9 +53,8 @@ class Repository @Inject constructor(
     suspend fun updateSingleTasks(tasks: List<SingleTask>) = singleTaskDao.updateTasks(tasks)
 
     @WorkerThread
-    suspend fun deleteSingleTask(task: SingleTask) {
+    suspend fun deleteSingleTask(task: SingleTask) =
         singleTaskDao.deleteTasks(getSingleTasks().nestedTasks(task))
-    }
 
     @WorkerThread
     suspend fun deleteSingleTasks(tasks: List<SingleTask>) {
@@ -64,5 +65,23 @@ class Repository @Inject constructor(
 
     /** ======================================================================================= */
 
+    /** Regular tasks */
+
+    val regularTasksFlow: Flow<List<RegularTask>> = regularTaskDao.getTasksFlow()
+
+    private suspend fun getRegularTasks() =
+        withContext(Dispatchers.IO) { regularTaskDao.getTasks() }
+
+    @WorkerThread
+    suspend fun insertRegularTask(task: RegularTask) = regularTaskDao.insert(task)
+
+    @WorkerThread
+    suspend fun updateRegularTask(task: RegularTask) = regularTaskDao.update(task)
+
+    @WorkerThread
+    suspend fun deleteRegularTask(task: RegularTask) =
+        regularTaskDao.deleteTasks(getRegularTasks().nestedTasks(task))
+
+    /** ======================================================================================= */
 
 }

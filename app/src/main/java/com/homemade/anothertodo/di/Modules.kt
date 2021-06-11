@@ -4,6 +4,7 @@ import android.content.Context
 import com.homemade.anothertodo.Repository
 import com.homemade.anothertodo.alarm.AlarmService
 import com.homemade.anothertodo.db.AppDatabase
+import com.homemade.anothertodo.db.dao.RegularTaskDao
 import com.homemade.anothertodo.db.dao.SettingsDao
 import com.homemade.anothertodo.db.dao.SingleTaskDao
 import dagger.Module
@@ -33,8 +34,18 @@ object Modules {
 
     @Provides
     @Singleton
-    fun provideRepository(settingsDao: SettingsDao, singleTaskDao: SingleTaskDao) =
-        Repository(settingsDao, singleTaskDao)
+    fun provideRegularTaskDao(@ApplicationContext appContext: Context): RegularTaskDao {
+        return AppDatabase.getDatabase(appContext, CoroutineScope(SupervisorJob()))
+            .RegularTaskDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideRepository(
+        settingsDao: SettingsDao,
+        singleTaskDao: SingleTaskDao,
+        regularTaskDao: RegularTaskDao
+    ) = Repository(settingsDao, singleTaskDao, regularTaskDao)
 
     @Provides
     @Singleton
