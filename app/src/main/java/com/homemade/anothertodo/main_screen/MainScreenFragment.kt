@@ -24,6 +24,7 @@ class MainScreenFragment : Fragment(R.layout.fragment_main_screen) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setHasOptionsMenu(true)
 
         binding.vm = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
@@ -74,6 +75,16 @@ class MainScreenFragment : Fragment(R.layout.fragment_main_screen) {
         adapter.setOnClickListener { viewModel.onItemClicked(it) }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.main_screen, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.menu_postpone_next_task -> viewModel.onPostponeNextTaskClicked()
+        else -> super.onOptionsItemSelected(item)
+    }
+
     private fun getCallbackActionMode() = object : ActionMode.Callback {
 
         override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
@@ -85,8 +96,7 @@ class MainScreenFragment : Fragment(R.layout.fragment_main_screen) {
 
         override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
             when (item.itemId) {
-                R.id.menu_postpone_current_task -> viewModel.onPostponeCurrentTaskClicked()
-                R.id.menu_postpone_next_task -> viewModel.onPostponeNextTaskClicked()
+                R.id.menu_postpone -> viewModel.onPostponeCurrentTaskClicked()
                 R.id.menu_roll -> viewModel.onRollClicked()
                 R.id.menu_done -> viewModel.onDoneClicked()
             }

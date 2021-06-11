@@ -6,9 +6,8 @@ import androidx.fragment.app.FragmentActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.homemade.anothertodo.R
 import com.homemade.anothertodo.utils.toArray
-import kotlin.reflect.KFunction1
 
-class MySingleChoiceDialog(val funSave: KFunction1<Int, Unit>, private var selectedItem: Int = 0) {
+class MySingleChoiceDialog(val funSave: (Int) -> Unit, private var selectedItem: Int = 0) {
     private var items = arrayOf<String>()
     private var resItems = 0
 

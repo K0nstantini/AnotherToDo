@@ -3,6 +3,7 @@ package com.homemade.anothertodo.add_classes
 import android.os.Parcel
 import android.os.Parcelable
 import com.homemade.anothertodo.utils.MINUTES_IN_HOUR
+import com.homemade.anothertodo.utils.hoursToMilli
 import com.homemade.anothertodo.utils.toStrTime
 import java.util.*
 
@@ -48,6 +49,8 @@ class MyCalendar(private val _milli: Long = 0L) : Parcelable {
     fun now() = this.also { calendar.timeInMillis = System.currentTimeMillis() }
 
     fun today() = this.now().set(year, month, day, 0, 0, 0)
+
+    fun addHours(minutes: Int) = MyCalendar(calendar.timeInMillis + hours.hoursToMilli())
 
     fun isEmpty() = milli == 0L
     fun isNoEmpty() = milli != 0L

@@ -49,6 +49,7 @@
     <string name="alert_title_single_task_done">Отметить задачу выполненной и удалить?</string>
     <string name="alert_title_single_task_roll">Заменить текущую задачу?</string>
     <string name="alert_title_postpone_current_task">Отложить текущую задачу</string>
+    <string name="alert_title_postpone_next_task">Отложить следующую задачу</string>
 
     <!--    Notifications-->
     <string name="single_task_notification_channel_id" translatable="false">s_task_channel</string>

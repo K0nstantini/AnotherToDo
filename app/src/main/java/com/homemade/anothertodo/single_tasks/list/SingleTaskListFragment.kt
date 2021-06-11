@@ -128,11 +128,9 @@ class SingleTaskListFragment : Fragment(R.layout.fragment_single_task_list) {
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.confirm -> backToParent()
-            else -> super.onOptionsItemSelected(item)
-        }
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.confirm -> backToParent()
+        else -> super.onOptionsItemSelected(item)
     }
 
     private fun backToParent(): Boolean {

@@ -13,8 +13,8 @@ import com.homemade.anothertodo.dialogs.MySingleChoiceDialog
 import com.homemade.anothertodo.single_tasks.getDatesToActivateSingleTasks
 import com.homemade.anothertodo.single_tasks.getTasksToUpdateDatesActivation
 import com.homemade.anothertodo.utils.Event
+import com.homemade.anothertodo.utils.hoursToMilli
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -24,14 +24,21 @@ class MainScreenViewModel @Inject constructor(
     private val alarmService: AlarmService
 ) : BaseViewModel() {
 
+    /** Settings */
+
     val settingsLive = repo.settingsFlow.asLiveData()
     private val settings get() = settingsLive.value!!
 
-//    private val settings: Settings = repo.settings
+    private val sDateActivation get() = settings.singleTask.dateActivation
+    private val sPostponeCurrentTask get() = settings.singleTask.postponeCurrentTaskForOnePoint
+    private val sPostponeNextTask get() = settings.singleTask.postponeNextTaskForOnePoint
+
+    /** ======================================================================================= */
 
     private val singleTasksLive: LiveData<List<SingleTask>> = repo.singleTasksFlow.asLiveData()
     val shownSingleTasks = Transformations.map(singleTasksLive) { tasks ->
-        tasks.filter { it.dateActivation.isNoEmpty() }.sortedBy { it.dateActivation.milli }
+        tasks.filter { it.dateActivation.isNoEmpty() }
+            .sortedBy { it.dateActivation.milli + it.deadline.hoursToMilli() }
     }
     private val singleTasks: List<SingleTask> get() = singleTasksLive.value ?: emptyList()
 
@@ -42,7 +49,6 @@ class MainScreenViewModel @Inject constructor(
 
     private val _hideActionMode = MutableLiveData<Event<Boolean>>()
     val hideActionMode: LiveData<Event<Boolean>> get() = _hideActionMode
-
 
     private var currentTask = MutableLiveData<SingleTask?>(null)
     val currentTaskName: String get() = currentTask.value?.name ?: String()
@@ -55,12 +61,12 @@ class MainScreenViewModel @Inject constructor(
     private fun setSingleTasks() = viewModelScope.launch {
 //        delClearData()
 //        return@launch
-        if (needToActivateSingleTasks(singleTasks, settings.singleTask.dateActivation)) {
+        if (needToActivateSingleTasks(singleTasks, sDateActivation)) {
 
             val dates = getDatesToActivateSingleTasks(
                 singleTasks,
                 settings.singleTask.frequency,
-                settings.singleTask.dateActivation
+                sDateActivation
             )
 
             val lastDate = dates.last()
@@ -88,24 +94,17 @@ class MainScreenViewModel @Inject constructor(
         if (isActionMode) destroyActionMode() else setActionMode()
     }
 
-    fun onPostponeCurrentTaskClicked() {
-        if (settings.singleTask.points > 0) {
-            val dialog = MySingleChoiceDialog(::selectTimeToPostponeCurrentTask)
-                .setTitle(R.string.alert_title_postpone_current_task)
-                .setItems(getTimesToPostpone())
-            setSingleChoiceDialog(dialog)
-        } else {
-            setMessage(R.string.message_not_enough_points)
-        }
-    }
+    fun onPostponeCurrentTaskClicked() = postponeTask(
+        ::selectTimeToPostponeCurrentTask,
+        R.string.alert_title_postpone_current_task,
+        sPostponeCurrentTask
+    )
 
-    fun onPostponeNextTaskClicked() {
-        if (settings.singleTask.points > 0) {
-            TODO()
-        } else {
-            setMessage(R.string.message_not_enough_points)
-        }
-    }
+    fun onPostponeNextTaskClicked() = postponeTask(
+        ::selectTimeToPostponeNextTask,
+        R.string.alert_title_postpone_next_task,
+        sPostponeNextTask
+    )
 
     fun onRollClicked() {
         when {
@@ -122,15 +121,39 @@ class MainScreenViewModel @Inject constructor(
         }
     }
 
-    fun onDoneClicked() {
-        val dialog = MyConfirmAlertDialog(::doneSingleTask)
+    fun onDoneClicked() = setConfirmDialog(
+        MyConfirmAlertDialog(::doneSingleTask)
             .setTitle(currentTaskName)
             .setMessage(R.string.alert_title_single_task_done)
-        setConfirmDialog(dialog)
+    )
+
+
+    private fun postponeTask(foo: (Int) -> Unit, title: Int, pointsForTask: Int): Boolean {
+        if (settings.singleTask.points > 0) {
+            val dialog = MySingleChoiceDialog(foo)
+                .setTitle(title)
+                .setItems(getTimesToPostpone(pointsForTask))
+            setSingleChoiceDialog(dialog)
+        } else {
+            setMessage(R.string.message_not_enough_points)
+        }
+        return true
     }
 
     private fun selectTimeToPostponeCurrentTask(index: Int) {
+        currentTask.value?.apply {
+            deadline += (index + 1) * sPostponeCurrentTask
+            settings.removePoints(index + 1)
+            destroyActionMode()
+        }?.update()
+    }
 
+    private fun selectTimeToPostponeNextTask(index: Int) {
+        val hours = (index + 1) * sPostponeNextTask
+        settings.apply {
+            singleTask.dateActivation = sDateActivation.addHours(hours)
+            settings.removePoints(index + 1)
+        }.update()
     }
 
     private fun rollSingleTask() {
@@ -156,6 +179,7 @@ class MainScreenViewModel @Inject constructor(
 
     private fun doneSingleTask() {
 //        currentTask.value?.delete()
+        currentTask.value?.apply { dateActivation = MyCalendar() }?.update() // FIXME: Del
         if (settings.singleTask.rewards) {
             settings.addPoints(settings.singleTask.pointsForTask)
         }
@@ -166,15 +190,12 @@ class MainScreenViewModel @Inject constructor(
     private fun Settings.removePoints(points: Int) = apply { singleTask.points -= points }.update()
 
     private fun getTimesToPostpone(
+        pointsForTask: Int,
         points: Int = settings.singleTask.points,
         startValue: Int = 1
-    ): List<String> {
-        return listOf("${startValue * settings.singleTask.postponeCurrentTaskForOnePoint}ч") +
-                if (points > 1) {
-                    getTimesToPostpone(points - 1, startValue + 1)
-                } else {
-                    emptyList()
-                }
+    ): List<String> = listOf("${startValue * pointsForTask}ч") + when {
+        points > 1 -> getTimesToPostpone(pointsForTask, points - 1, startValue + 1)
+        else -> emptyList()
     }
 
     private fun setActionMode() {
