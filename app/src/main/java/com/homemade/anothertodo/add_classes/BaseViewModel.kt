@@ -6,9 +6,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.homemade.anothertodo.dialogs.MyConfirmAlertDialog
 import com.homemade.anothertodo.dialogs.MyInputDialog
+import com.homemade.anothertodo.dialogs.MySingleChoiceDialog
 import com.homemade.anothertodo.utils.Event
 
 abstract class BaseViewModel : ViewModel() {
+
+    private val _showSingleChoiceDialog = MutableLiveData<Event<MySingleChoiceDialog>>()
+    val showSingleChoiceDialog: LiveData<Event<MySingleChoiceDialog>>
+        get() = _showSingleChoiceDialog
 
     private val _showInputDialog = MutableLiveData<Event<MyInputDialog>>()
     val showInputDialog: LiveData<Event<MyInputDialog>> get() = _showInputDialog
@@ -18,6 +23,10 @@ abstract class BaseViewModel : ViewModel() {
 
     private val _message = MutableLiveData<Event<@StringRes Int>>()
     val message: LiveData<Event<Int>> get() = _message
+
+    fun setSingleChoiceDialog(dialog: MySingleChoiceDialog) {
+        _showSingleChoiceDialog.value = Event(dialog)
+    }
 
     fun setInputDialog(dialog: MyInputDialog) {
         _showInputDialog.value = Event(dialog)

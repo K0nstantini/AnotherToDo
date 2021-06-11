@@ -22,6 +22,8 @@ class ToDoApplication : Application() {
     }
 
     private fun checkSettings() = CoroutineScope(Dispatchers.Default).launch {
-        repo.getSettings() ?: repo.insertSettings()
+        if (repo.getSettings() == null) {
+            repo.insertSettings()
+        }
     }
 }

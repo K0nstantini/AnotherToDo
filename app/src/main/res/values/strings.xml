@@ -3,6 +3,7 @@
 
     <!--    Menu Navigation Drawer-->
     <string name="nav_single_task_list">Разовые задачи</string>
+    <string name="nav_statistic">Статистика</string>
 
     <!--    Menu action bar-->
     <string name="save_btn_menu">Сохранить</string>
@@ -10,6 +11,12 @@
     <!--    Menu Contextual action bar-->
     <string name="task_tree_edit_menu">Редактировать</string>
     <string name="task_tree_delete_menu">Удалить</string>
+    <string name="task_tree_postpone_menu">Отложить</string>
+    <string name="task_tree_roll_menu">Сменить задачу</string>
+
+    <!--    Context menu-->
+    <string name="context_menu_postpone_current_single_task">Отложить текущую задачу</string>
+    <string name="context_menu_postpone_next_single_task">Отложить следующую задачу</string>
 
     <!--    Fragment Titles-->
     <string name="title_single_task_list">Разовые задачи</string>
@@ -17,6 +24,7 @@
     <string name="title_single_task_select_task">Выберите задачу</string>
     <string name="title_action_mode">Ред.</string>
     <string name="title_add_task_new_task">Новая задача</string>
+    <string name="title_statistic">Статистика</string>
 
     <!--    Buttons title-->
     <string name="btn_clear">Очистить</string>
@@ -40,6 +48,7 @@
     <string name="alert_title_add_single_task_deadline">Время на выполнение (ч)</string>
     <string name="alert_title_single_task_done">Отметить задачу выполненной и удалить?</string>
     <string name="alert_title_single_task_roll">Заменить текущую задачу?</string>
+    <string name="alert_title_postpone_current_task">Отложить текущую задачу</string>
 
     <!--    Notifications-->
     <string name="single_task_notification_channel_id" translatable="false">s_task_channel</string>
@@ -52,6 +61,10 @@
 
     <!--    Messages-->
     <string name="message_roll_not_find_task">Не найдено подходящих задач</string>
-    <string name="message_roll_not_enough_points">Недостаточно баллов для смены задачи</string>
+    <string name="message_not_enough_points">Недостаточно баллов</string>
+    <string name="message_over_limit_rolls_for_task">Превышен лимит замен для задачи</string>
+
+    <!--    Statistic texts-->
+    <string name="statistic_text_count_points">Количество баллов:</string>
 
 </resources>

@@ -61,12 +61,13 @@ abstract class AppDatabase : RoomDatabase() {
             dao.insert(SingleTask(name = "Почистить кофемашину", parent = routine))
             dao.insert(SingleTask(name = "Сдать анализы", deadline = 168, parent = routine))
 
-            val pc = dao.insert(SingleTask(name = "Компьютер", group = true))
+            val pc = dao.insert(SingleTask(name = "Компьютер, телефон и пр.", group = true))
             dao.insert(SingleTask(name = "Придумать систему бэкапов", parent = pc))
             dao.insert(SingleTask(name = "Вкладки Chrome (ноут)", parent = pc))
             dao.insert(SingleTask(name = "Вкладки Chrome (комп)", parent = pc))
             dao.insert(SingleTask(name = "Рабочий стол (ноут)", parent = pc))
             dao.insert(SingleTask(name = "Рабочий стол (комп)", parent = pc))
+            dao.insert(SingleTask(name = "Разобраться с телефоном, бэкап и пр.", parent = pc))
             dao.insert(SingleTask(name = "Купить что-нибудь в форе", deadline = 72, parent = pc))
 
             val poker = dao.insert(SingleTask(name = "Покер", group = true))
@@ -75,16 +76,25 @@ abstract class AppDatabase : RoomDatabase() {
             dao.insert(SingleTask(name = "Кэшаут Покерок", parent = poker))
 
             val music = dao.insert(SingleTask(name = "Музыка", group = true))
-            dao.insert(SingleTask(name = "Сольфеджио", parent = music))
-            dao.insert(SingleTask(name = "Подключить синтезатор", parent = music))
-            dao.insert(SingleTask(name = "Найти/заказать дисковод/дискеты", parent = music))
-            dao.insert(SingleTask(name = "Дослушать Баха", parent = music))
-            dao.insert(SingleTask(name = "Электрогитара", parent = music))
+
+            val mOthers = dao.insert(SingleTask(name = "Прочее", parent = music, group = true))
+            dao.insert(SingleTask(name = "Подключить синтезатор", parent = mOthers))
+            dao.insert(SingleTask(name = "Найти/заказать дисковод/дискеты", parent = mOthers))
+
+            val mPractice = dao.insert(SingleTask(name = "Практика", parent = music, group = true))
+            dao.insert(SingleTask(name = "Сольфеджио", parent = mPractice))
+            dao.insert(SingleTask(name = "Электрогитара", parent = mPractice))
+
+            val mTheory = dao.insert(SingleTask(name = "Теория", parent = music, group = true))
+            dao.insert(SingleTask(name = "Дослушать Баха", parent = mTheory))
+            dao.insert(SingleTask(name = "Музыкофилия 30 мин.", parent = mTheory))
+
 
             val english = dao.insert(SingleTask(name = "Английский", group = true))
             dao.insert(SingleTask(name = "Дочитать главу HPMOR", parent = english))
             dao.insert(SingleTask(name = "Досмотреть форд против феррари", parent = english))
             dao.insert(SingleTask(name = "Серия How I Met Your Mother", parent = english))
+            dao.insert(SingleTask(name = "Bill Perkins 1 chapter or 30 min", parent = english))
 
         }
     }

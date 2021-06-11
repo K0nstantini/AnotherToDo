@@ -6,4 +6,9 @@
         android:icon="@drawable/ic_format_list_numbered"
         android:title="@string/nav_single_task_list" />
 
+    <item
+        android:id="@+id/statisticFragment"
+        android:icon="@drawable/ic_statistic"
+        android:title="@string/nav_statistic" />
+
 </menu>

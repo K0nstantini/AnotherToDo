@@ -33,14 +33,17 @@ class MainScreenFragment : Fragment(R.layout.fragment_main_screen) {
         setListeners()
     }
 
-    override fun onStart() {
-        super.onStart()
-        viewModel.initData()
-    }
+//    override fun onStart() {
+//        super.onStart()
+//        viewModel.initData()
+//    }
 
     private fun getMActivity() = requireNotNull(this.activity)
 
     private fun setObserve() = viewModel.apply {
+        settingsLive.observe(viewLifecycleOwner) {
+            viewModel.initData()
+        }
         shownSingleTasks.observe(viewLifecycleOwner, {
             it?.let { adapter.submitList(it) }
         })
@@ -55,6 +58,9 @@ class MainScreenFragment : Fragment(R.layout.fragment_main_screen) {
         })
         hideActionMode.observe(viewLifecycleOwner, {
             it?.let { actionMode?.finish() }
+        })
+        showSingleChoiceDialog.observe(viewLifecycleOwner, { event ->
+            event.getContentIfNotHandled()?.show(mainActivity)
         })
         showConfirmDialog.observe(viewLifecycleOwner, { event ->
             event.getContentIfNotHandled()?.show(mainActivity)
@@ -79,7 +85,8 @@ class MainScreenFragment : Fragment(R.layout.fragment_main_screen) {
 
         override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
             when (item.itemId) {
-                R.id.menu_postpone -> viewModel.onPostponeClicked()
+                R.id.menu_postpone_current_task -> viewModel.onPostponeCurrentTaskClicked()
+                R.id.menu_postpone_next_task -> viewModel.onPostponeNextTaskClicked()
                 R.id.menu_roll -> viewModel.onRollClicked()
                 R.id.menu_done -> viewModel.onDoneClicked()
             }

@@ -5,12 +5,22 @@
     <item
         android:id="@+id/menu_postpone"
         android:icon="@drawable/ic_time"
-        android:title="@string/task_tree_edit_menu"
-        app:showAsAction="ifRoom" />
+        android:title="@string/task_tree_postpone_menu"
+        app:showAsAction="ifRoom">
+        <menu>
+            <item
+                android:id="@+id/menu_postpone_current_task"
+                android:title="@string/context_menu_postpone_current_single_task" />
+            <item
+                android:id="@+id/menu_postpone_next_task"
+                android:title="@string/context_menu_postpone_next_single_task" />
+        </menu>
+    </item>
+
     <item
         android:id="@+id/menu_roll"
         android:icon="@drawable/ic_refresh"
-        android:title="@string/task_tree_edit_menu"
+        android:title="@string/task_tree_roll_menu"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/menu_done"

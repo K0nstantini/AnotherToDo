@@ -1,5 +1,6 @@
 package com.homemade.anothertodo.utils
 
+import android.app.Application
 import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import com.homemade.anothertodo.db.entity.SingleTask
@@ -11,6 +12,8 @@ fun Int.toStrTime(): String {
     return (this / 60).toString().padStart(2, '0') + ':' +
             (this % 60).toString().padStart(2, '0')
 }
+
+fun Int.toArray(app: Application): Array<String> = app.resources.getStringArray(this)
 
 fun Int.hoursToMilli(): Long = this.toLong() * MINUTES_IN_HOUR * SECONDS_IN_MINUTE * MILLI_IN_SECOND
 

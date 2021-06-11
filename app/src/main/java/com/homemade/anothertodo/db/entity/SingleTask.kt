@@ -28,12 +28,12 @@ data class SingleTask(
     val readyToActivate: Boolean
         get() = !group && dateActivation.isEmpty() && dateStart < MyCalendar().now()
 
+    fun canRoll(settings: Settings) = with(settings.singleTask) { rolls < numberPossibleRolls }
+
     private fun setName(_name: LiveData<String>) = _name.value?.let { name = it }
     private fun setGroup(_group: LiveData<Boolean>) = _group.value?.let { group = it }
     private fun setParent(_parent: LiveData<Long>) = _parent.value?.let { parent = it }
-    private fun setDateStart(_dateStart: LiveData<MyCalendar>) =
-        _dateStart.value?.let { dateStart = it }
-
+    private fun setDateStart(date: LiveData<MyCalendar>) = date.value?.let { dateStart = it }
     private fun setDeadline(_deadline: LiveData<Int>) = _deadline.value?.let { deadline = it }
 
     fun setData(

@@ -9,10 +9,12 @@ import com.homemade.anothertodo.alarm.AlarmService
 import com.homemade.anothertodo.db.entity.Settings
 import com.homemade.anothertodo.db.entity.SingleTask
 import com.homemade.anothertodo.dialogs.MyConfirmAlertDialog
+import com.homemade.anothertodo.dialogs.MySingleChoiceDialog
 import com.homemade.anothertodo.single_tasks.getDatesToActivateSingleTasks
 import com.homemade.anothertodo.single_tasks.getTasksToUpdateDatesActivation
 import com.homemade.anothertodo.utils.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -22,7 +24,10 @@ class MainScreenViewModel @Inject constructor(
     private val alarmService: AlarmService
 ) : BaseViewModel() {
 
-    private val settings: Settings = repo.settings
+    val settingsLive = repo.settingsFlow.asLiveData()
+    private val settings get() = settingsLive.value!!
+
+//    private val settings: Settings = repo.settings
 
     private val singleTasksLive: LiveData<List<SingleTask>> = repo.singleTasksFlow.asLiveData()
     val shownSingleTasks = Transformations.map(singleTasksLive) { tasks ->
@@ -83,18 +88,37 @@ class MainScreenViewModel @Inject constructor(
         if (isActionMode) destroyActionMode() else setActionMode()
     }
 
-    fun onPostponeClicked() {
-        TODO()
+    fun onPostponeCurrentTaskClicked() {
+        if (settings.singleTask.points > 0) {
+            val dialog = MySingleChoiceDialog(::selectTimeToPostponeCurrentTask)
+                .setTitle(R.string.alert_title_postpone_current_task)
+                .setItems(getTimesToPostpone())
+            setSingleChoiceDialog(dialog)
+        } else {
+            setMessage(R.string.message_not_enough_points)
+        }
+    }
+
+    fun onPostponeNextTaskClicked() {
+        if (settings.singleTask.points > 0) {
+            TODO()
+        } else {
+            setMessage(R.string.message_not_enough_points)
+        }
     }
 
     fun onRollClicked() {
-        if (settings.singleTask.points < settings.singleTask.pointsForRoll) {
-            setMessage(R.string.message_roll_not_enough_points)
-        } else {
-            val dialog = MyConfirmAlertDialog(::rollSingleTask)
-                .setTitle(currentTaskName)
-                .setMessage(R.string.alert_title_single_task_roll)
-            setConfirmDialog(dialog)
+        when {
+            !settings.singleTask.canRoll ->
+                setMessage(R.string.message_not_enough_points)
+            currentTask.value?.canRoll(settings) == false ->
+                setMessage(R.string.message_over_limit_rolls_for_task)
+            else -> {
+                val dialog = MyConfirmAlertDialog(::rollSingleTask)
+                    .setTitle(currentTaskName)
+                    .setMessage(R.string.alert_title_single_task_roll)
+                setConfirmDialog(dialog)
+            }
         }
     }
 
@@ -103,6 +127,10 @@ class MainScreenViewModel @Inject constructor(
             .setTitle(currentTaskName)
             .setMessage(R.string.alert_title_single_task_done)
         setConfirmDialog(dialog)
+    }
+
+    private fun selectTimeToPostponeCurrentTask(index: Int) {
+
     }
 
     private fun rollSingleTask() {
@@ -121,7 +149,7 @@ class MainScreenViewModel @Inject constructor(
                 dateActivation = MyCalendar()
                 rolls++
             }.update()
-            settings.addPoints(settings.singleTask.pointsForRoll)
+            settings.removePoints(settings.singleTask.pointsForRoll)
             destroyActionMode()
         }
     }
@@ -135,6 +163,19 @@ class MainScreenViewModel @Inject constructor(
     }
 
     private fun Settings.addPoints(points: Int) = apply { singleTask.points += points }.update()
+    private fun Settings.removePoints(points: Int) = apply { singleTask.points -= points }.update()
+
+    private fun getTimesToPostpone(
+        points: Int = settings.singleTask.points,
+        startValue: Int = 1
+    ): List<String> {
+        return listOf("${startValue * settings.singleTask.postponeCurrentTaskForOnePoint}ч") +
+                if (points > 1) {
+                    getTimesToPostpone(points - 1, startValue + 1)
+                } else {
+                    emptyList()
+                }
+    }
 
     private fun setActionMode() {
         _showActionMode.value = Event(true)

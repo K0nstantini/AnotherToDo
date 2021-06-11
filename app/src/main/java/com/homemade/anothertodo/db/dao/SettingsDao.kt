@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 interface SettingsDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(set: Settings): Long
+    suspend fun insert(set: Settings)
 
     @Update
     suspend fun update(set: Settings)
@@ -20,7 +20,7 @@ interface SettingsDao {
     suspend fun deleteAll()
 
     @Query("SELECT * FROM settings_table LIMIT 1")
-    fun getSettingsFlow(): Flow<List<Settings>>
+    fun getSettingsFlow(): Flow<Settings>
 
     @Query("SELECT * FROM settings_table LIMIT 1")
     fun getSettings(): Settings?

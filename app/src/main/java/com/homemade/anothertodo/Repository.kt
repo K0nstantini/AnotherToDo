@@ -19,8 +19,7 @@ class Repository @Inject constructor(
 
     /** Settings */
 
-    private val settingsFlow: Flow<List<Settings>> = settingsDao.getSettingsFlow()
-    val settings: Settings get() = settingsFlow.asLiveData().value?.getOrNull(0) ?: Settings()
+    val settingsFlow: Flow<Settings> = settingsDao.getSettingsFlow()
 
     @WorkerThread
     suspend fun insertSettings() = settingsDao.insert(Settings())
@@ -35,17 +34,8 @@ class Repository @Inject constructor(
     /** Single tasks */
 
     val singleTasksFlow: Flow<List<SingleTask>> = singleTaskDao.getTasksFlow()
-    val singleTasksToDoFlow: Flow<List<SingleTask>> = singleTaskDao.getTasksToDoFlow()
 
     suspend fun getSingleTask(id: Long) = withContext(Dispatchers.IO) { singleTaskDao.getTask(id) }
-
-    suspend fun getActiveSingleTasks() =
-        withContext(Dispatchers.IO) { singleTaskDao.getActiveTasks() }
-
-    suspend fun getNoActiveSingleTasks() =
-        withContext(Dispatchers.IO) { singleTaskDao.getNoActiveTasks() }
-
-    suspend fun countSingleTasks() = withContext(Dispatchers.IO) { singleTaskDao.getCountTasks() }
 
     suspend fun getSingleTasks() = withContext(Dispatchers.IO) { singleTaskDao.getTasks() }
 

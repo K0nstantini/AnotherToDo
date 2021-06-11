@@ -31,6 +31,9 @@ data class Settings(
         var postponeNextTaskForOnePoint: Int = POSTPONE_NEXT_TASK_FOR_ONE_POINT,        // количество часов, на которые можно отложить следующую задачу за 1 балл
     ) {
 
+        val canRoll: Boolean
+            get() = points >= pointsForRoll
+
         companion object {
             private const val FREQUENCY_GENERATE_S_TASKS = 96
             private const val POINTS_FOR_TASK = 1
