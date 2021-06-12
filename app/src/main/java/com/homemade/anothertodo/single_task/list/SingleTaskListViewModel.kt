@@ -1,15 +1,17 @@
-package com.homemade.anothertodo.single_tasks.list
+package com.homemade.anothertodo.single_task.list
 
 import androidx.lifecycle.*
 import com.homemade.anothertodo.Repository
-import com.homemade.anothertodo.db.entity.SingleTask
+import com.homemade.anothertodo.db.entity.Task
+import com.homemade.anothertodo.enums.TaskListMode
+import com.homemade.anothertodo.enums.TypeTask
 import com.homemade.anothertodo.utils.Event
 import com.homemade.anothertodo.utils.PrimaryActionModeCallback
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-const val SINGLE_TASK_MODE_KEY = "singleTaskModeKey"
+const val SINGLE_TASK_MODE_KEY = "taskModeKey"
 
 @HiltViewModel
 class SingleTaskListViewModel @Inject constructor(
@@ -17,10 +19,10 @@ class SingleTaskListViewModel @Inject constructor(
     handle: SavedStateHandle
 ) : ViewModel() {
 
-    val mode = handle.get<SingleTaskListMode>(SINGLE_TASK_MODE_KEY) ?: SingleTaskListMode.DEFAULT
-    val title = mode.title
+    val mode = handle.get<TaskListMode>(SINGLE_TASK_MODE_KEY) ?: TaskListMode.DEFAULT
+    val title = mode.titleSingleTask
 
-    val allSingleTasks: LiveData<List<SingleTask>> = repo.singleTasksFlow.asLiveData()
+    val allTasks: LiveData<List<Task>> = repo.getTasksFlow(TypeTask.SINGLE_TASK).asLiveData()
 
     private val _showActionMode = MutableLiveData<Event<PrimaryActionModeCallback>>()
     val showActionMode: LiveData<Event<PrimaryActionModeCallback>> get() = _showActionMode
@@ -29,7 +31,7 @@ class SingleTaskListViewModel @Inject constructor(
     private val isActionMode: Boolean get() = actionMode.value != null
 
     val showAddButton =
-        Transformations.map(actionMode) { it == null && mode == SingleTaskListMode.DEFAULT }
+        Transformations.map(actionMode) { it == null && mode == TaskListMode.DEFAULT }
 
     // Доступность кнопки подтверждения при выборе задачи (режим "Выбор каталога/задачи")
     private val _enabledConfirmMenu = MutableLiveData<Boolean>(null)
@@ -37,27 +39,27 @@ class SingleTaskListViewModel @Inject constructor(
 
 
     // Визуальное отображение списка задач (при сворачивании/разворачивании групп)
-    val shownTasks: LiveData<List<SingleTask>> = Transformations.map(allSingleTasks) { tasks ->
-        getTasksToShow(if (mode == SingleTaskListMode.SELECT_CATALOG) getOpenGroups() else tasks)
+    val shownTasks: LiveData<List<Task>> = Transformations.map(allTasks) { tasks ->
+        getTasksToShow(if (mode == TaskListMode.SELECT_CATALOG) getOpenGroups() else tasks)
     }
 
     // Текущая выделенная задача
-    private var currentTask: SingleTask? = null
+    private var currentTask: Task? = null
     val currentTaskID: Long get() = currentTask?.id ?: -1
 
     // Список выделенных задач (напр. для удаления)
     private val _selectedItems = MutableLiveData<List<Int>>()
     val selectedItems: LiveData<List<Int>> get() = _selectedItems
-    private val selectedTasks: List<SingleTask>
-        get() = _selectedItems.value?.map { getTask(it) ?: SingleTask() } ?: emptyList()
+    private val selectedTasks: List<Task>
+        get() = _selectedItems.value?.map { getTask(it) ?: Task() } ?: emptyList()
 
     // Уровень вложенности задач
-    val levels: LiveData<Map<Long, Int>> = Transformations.map(allSingleTasks) { tasks ->
+    val levels: LiveData<Map<Long, Int>> = Transformations.map(allTasks) { tasks ->
         tasks.associateBy({ it.id }, { level(it) })
     }
 
-    private val _navigateToEdit = MutableLiveData<Event<SingleTask?>>()
-    val navigateToEdit: LiveData<Event<SingleTask?>> get() = _navigateToEdit
+    private val _navigateToEdit = MutableLiveData<Event<Task?>>()
+    val navigateToEdit: LiveData<Event<Task?>> get() = _navigateToEdit
 
     private val _navigateToAdd = MutableLiveData<Event<Boolean?>>()
     val navigateToAdd: LiveData<Event<Boolean?>> get() = _navigateToAdd
@@ -70,7 +72,7 @@ class SingleTaskListViewModel @Inject constructor(
         destroyActionMode()
     }
 
-    fun onItemClicked(task: SingleTask) {
+    fun onItemClicked(task: Task) {
         currentTask = task
         when {
             isActionMode -> selectItemActionMode(task)
@@ -79,7 +81,7 @@ class SingleTaskListViewModel @Inject constructor(
         }
     }
 
-    fun onItemLongClicked(task: SingleTask) =
+    fun onItemLongClicked(task: Task) =
         if (mode.supportLongClick) {
             currentTask = task
             if (actionMode.value == null) {
@@ -91,7 +93,7 @@ class SingleTaskListViewModel @Inject constructor(
             false
         }
 
-    private fun selectItemActionMode(task: SingleTask) {
+    private fun selectItemActionMode(task: Task) {
         val selectedList = _selectedItems.value ?: emptyList()
         val position = getPosition(task)
         _selectedItems.value = if (selectedList.contains(position))
@@ -116,29 +118,29 @@ class SingleTaskListViewModel @Inject constructor(
         currentTask = null
     }
 
-    private fun isMarkTaskForSelection(mode: SingleTaskListMode, task: SingleTask): Boolean =
-        (mode == SingleTaskListMode.SELECT_CATALOG) ||
-                (mode == SingleTaskListMode.SELECT_TASK && !task.group)
+    private fun isMarkTaskForSelection(mode: TaskListMode, task: Task): Boolean =
+        (mode == TaskListMode.SELECT_CATALOG) ||
+                (mode == TaskListMode.SELECT_TASK && !task.group)
 
-    private fun selectTaskForSelectionMode(task: SingleTask) {
+    private fun selectTaskForSelectionMode(task: Task) {
         val position = getPosition(task)
         _selectedItems.value = listOf(position)
         _enabledConfirmMenu.value = position >= 0
     }
 
-    private fun setGroupOpenClose(task: SingleTask) {
+    private fun setGroupOpenClose(task: Task) {
         task.groupOpen = !task.groupOpen
         updateTaskInBase(task)
     }
 
     // FIXME: Не чистая ф-я?
     private fun getTasksToShow(
-        tasks: List<SingleTask>,
+        tasks: List<Task>,
         id: Long = 0,
-        list: MutableList<SingleTask> = mutableListOf()
-    ): List<SingleTask> {
+        list: MutableList<Task> = mutableListOf()
+    ): List<Task> {
 
-        val comparator = compareByDescending<SingleTask> { it.group }.thenBy { it.name }
+        val comparator = compareByDescending<Task> { it.group }.thenBy { it.name }
         tasks.filter { it.parent == id }
             .sortedWith(comparator)
             .forEach {
@@ -150,19 +152,19 @@ class SingleTaskListViewModel @Inject constructor(
         return list
     }
 
-    private fun getOpenGroups(): List<SingleTask> {
-        val groups = mutableListOf<SingleTask>()
-        allSingleTasks.value?.filter { it.group }?.forEach {
+    private fun getOpenGroups(): List<Task> {
+        val groups = mutableListOf<Task>()
+        allTasks.value?.filter { it.group }?.forEach {
             groups.add(it.copy(groupOpen = true))
         }
         return groups
     }
 
-    private fun task(id: Long) = allSingleTasks.value?.find { it.id == id }
-    private fun getPosition(task: SingleTask) = shownTasks.value?.indexOf(task) ?: -1
-    private fun getTask(index: Int): SingleTask? = allSingleTasks.value?.getOrNull(index)
+    private fun task(id: Long) = allTasks.value?.find { it.id == id }
+    private fun getPosition(task: Task) = shownTasks.value?.indexOf(task) ?: -1
+    private fun getTask(index: Int): Task? = allTasks.value?.getOrNull(index)
 
-    private fun level(task: SingleTask): Int {
+    private fun level(task: Task): Int {
         var level = 0
         var parentId = task.parent
         while (parentId != 0L) {
@@ -172,11 +174,11 @@ class SingleTaskListViewModel @Inject constructor(
         return level
     }
 
-    private fun updateTaskInBase(task: SingleTask) = viewModelScope.launch {
+    private fun updateTaskInBase(task: Task) = viewModelScope.launch {
         repo.updateSingleTask(task)
     }
 
-    private fun deleteTasksFromBase(tasks: List<SingleTask>) = viewModelScope.launch {
+    private fun deleteTasksFromBase(tasks: List<Task>) = viewModelScope.launch {
         repo.deleteSingleTasks(tasks)
     }
 

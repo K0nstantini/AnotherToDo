@@ -7,11 +7,12 @@ import com.homemade.anothertodo.add_classes.BaseViewModel
 import com.homemade.anothertodo.add_classes.MyCalendar
 import com.homemade.anothertodo.alarm.AlarmService
 import com.homemade.anothertodo.db.entity.Settings
-import com.homemade.anothertodo.db.entity.SingleTask
+import com.homemade.anothertodo.db.entity.Task
 import com.homemade.anothertodo.dialogs.MyConfirmAlertDialog
 import com.homemade.anothertodo.dialogs.MySingleChoiceDialog
-import com.homemade.anothertodo.single_tasks.getDatesToActivateSingleTasks
-import com.homemade.anothertodo.single_tasks.getTasksToUpdateDatesActivation
+import com.homemade.anothertodo.enums.TypeTask
+import com.homemade.anothertodo.single_task.getDatesToActivateSingleTasks
+import com.homemade.anothertodo.single_task.getTasksToUpdateDatesActivation
 import com.homemade.anothertodo.utils.Event
 import com.homemade.anothertodo.utils.hoursToMilli
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,7 +28,7 @@ class MainScreenViewModel @Inject constructor(
     /** Settings */
 
     val settingsLive = repo.settingsFlow.asLiveData()
-    private val settings get() = settingsLive.value!!
+    private val settings get() = checkNotNull(settingsLive.value) { "Settings isn't initialised" }
 
     private val sDateActivation get() = settings.singleTask.dateActivation
     private val sPostponeCurrentTask get() = settings.singleTask.postponeCurrentTaskForOnePoint
@@ -35,12 +36,12 @@ class MainScreenViewModel @Inject constructor(
 
     /** ======================================================================================= */
 
-    private val singleTasksLive: LiveData<List<SingleTask>> = repo.singleTasksFlow.asLiveData()
-    val shownSingleTasks = Transformations.map(singleTasksLive) { tasks ->
+    private val tasksLive: LiveData<List<Task>> = repo.getTasksFlow(TypeTask.SINGLE_TASK).asLiveData()
+    val shownSingleTasks = Transformations.map(tasksLive) { tasks ->
         tasks.filter { it.dateActivation.isNoEmpty() }
             .sortedBy { it.dateActivation.milli + it.deadline.hoursToMilli() }
     }
-    private val singleTasks: List<SingleTask> get() = singleTasksLive.value ?: emptyList()
+    private val tasks: List<Task> get() = tasksLive.value ?: emptyList()
 
     private var isActionMode: Boolean = false
 
@@ -50,7 +51,7 @@ class MainScreenViewModel @Inject constructor(
     private val _hideActionMode = MutableLiveData<Event<Boolean>>()
     val hideActionMode: LiveData<Event<Boolean>> get() = _hideActionMode
 
-    private var currentTask = MutableLiveData<SingleTask?>(null)
+    private var currentTask = MutableLiveData<Task?>(null)
     val currentTaskName: String get() = currentTask.value?.name ?: String()
     val currentTaskPosition = Transformations.map(currentTask) { it?.position() ?: -1 }
 
@@ -61,10 +62,10 @@ class MainScreenViewModel @Inject constructor(
     private fun setSingleTasks() = viewModelScope.launch {
 //        delClearData()
 //        return@launch
-        if (needToActivateSingleTasks(singleTasks, sDateActivation)) {
+        if (needToActivateSingleTasks(tasks, sDateActivation)) {
 
             val dates = getDatesToActivateSingleTasks(
-                singleTasks,
+                tasks,
                 settings.singleTask.frequency,
                 sDateActivation
             )
@@ -73,7 +74,7 @@ class MainScreenViewModel @Inject constructor(
             alarmService.setExactAlarm(lastDate)
             settings.apply { singleTask.dateActivation = lastDate }.update()
 
-            getTasksToUpdateDatesActivation(singleTasks, dates).update()
+            getTasksToUpdateDatesActivation(tasks, dates).update()
         }
     }
 
@@ -89,7 +90,7 @@ class MainScreenViewModel @Inject constructor(
         }
     }
 
-    fun onItemClicked(task: SingleTask) {
+    fun onItemClicked(task: Task) {
         currentTask.value = task
         if (isActionMode) destroyActionMode() else setActionMode()
     }
@@ -157,7 +158,7 @@ class MainScreenViewModel @Inject constructor(
     }
 
     private fun rollSingleTask() {
-        val filteredTasks = { singleTasks.filter { it.readyToActivate } }
+        val filteredTasks = { tasks.filter { it.readyToActivate } }
         val tasksInRoll = when (settings.singleTask.currentTaskTakePartInRoll) {
             true -> filteredTasks() + currentTask.value
             false -> filteredTasks()
@@ -211,18 +212,18 @@ class MainScreenViewModel @Inject constructor(
         }
     }
 
-    private fun needToActivateSingleTasks(tasks: List<SingleTask>, date: MyCalendar) =
+    private fun needToActivateSingleTasks(tasks: List<Task>, date: MyCalendar) =
         date < MyCalendar().now() && tasks.any { it.readyToActivate }
 
-    private fun SingleTask.position() = shownSingleTasks.value?.indexOf(this) ?: -1
+    private fun Task.position() = shownSingleTasks.value?.indexOf(this) ?: -1
 
-    private fun SingleTask.update() =
+    private fun Task.update() =
         viewModelScope.launch { repo.updateSingleTask(this@update) }
 
-    private fun List<SingleTask>.update() =
+    private fun List<Task>.update() =
         viewModelScope.launch { repo.updateSingleTasks(this@update) }
 
-    private fun SingleTask.delete() =
+    private fun Task.delete() =
         viewModelScope.launch { repo.deleteSingleTask(this@delete) }
 
     private fun Settings.update() = viewModelScope.launch { repo.updateSettings(this@update) }

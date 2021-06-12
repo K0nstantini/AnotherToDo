@@ -2,6 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:id="@+id/taskListFragment"
+        android:icon="@drawable/ic_format_list_numbered"
+        android:title="@string/nav_regular_task_list" />
+
+    <item
         android:id="@+id/singleTaskListFragment"
         android:icon="@drawable/ic_format_list_numbered"
         android:title="@string/nav_single_task_list" />

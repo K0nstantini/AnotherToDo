@@ -34,11 +34,6 @@ class MainScreenFragment : Fragment(R.layout.fragment_main_screen) {
         setListeners()
     }
 
-//    override fun onStart() {
-//        super.onStart()
-//        viewModel.initData()
-//    }
-
     private fun getMActivity() = requireNotNull(this.activity)
 
     private fun setObserve() = viewModel.apply {

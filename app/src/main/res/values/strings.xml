@@ -2,6 +2,7 @@
     <string name="app_name">AnotherToDo</string>
 
     <!--    Menu Navigation Drawer-->
+    <string name="nav_regular_task_list">Регулярные задачи</string>
     <string name="nav_single_task_list">Разовые задачи</string>
     <string name="nav_statistic">Статистика</string>
 
@@ -19,9 +20,10 @@
     <string name="context_menu_postpone_next_single_task">Отложить следующую задачу</string>
 
     <!--    Fragment Titles-->
+    <string name="title_regular_task_list">Регулярные задачи</string>
     <string name="title_single_task_list">Разовые задачи</string>
-    <string name="title_single_task_select_catalog">Выберите каталог</string>
-    <string name="title_single_task_select_task">Выберите задачу</string>
+    <string name="title_select_catalog">Выберите каталог</string>
+    <string name="title_select_task">Выберите задачу</string>
     <string name="title_action_mode">Ред.</string>
     <string name="title_add_task_new_task">Новая задача</string>
     <string name="title_statistic">Статистика</string>
@@ -67,5 +69,7 @@
 
     <!--    Statistic texts-->
     <string name="statistic_text_count_points">Количество баллов:</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

@@ -1,4 +1,4 @@
-package com.homemade.anothertodo.single_tasks.add_edit
+package com.homemade.anothertodo.single_task.add_edit
 
 import androidx.lifecycle.*
 import com.homemade.anothertodo.R
@@ -6,7 +6,7 @@ import com.homemade.anothertodo.Repository
 import com.homemade.anothertodo.add_classes.BaseViewModel
 import com.homemade.anothertodo.add_classes.MyCalendar
 import com.homemade.anothertodo.db.entity.DEFAULT_DEADLINE_SINGLE_TASK
-import com.homemade.anothertodo.db.entity.SingleTask
+import com.homemade.anothertodo.db.entity.Task
 import com.homemade.anothertodo.dialogs.MyInputDialog
 import com.homemade.anothertodo.settingItem.SettingItem
 import com.homemade.anothertodo.utils.Event
@@ -14,7 +14,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-const val SINGLE_TASK_KEY = "singleTaskKey"
+const val SINGLE_TASK_KEY = "taskKey"
 
 @HiltViewModel
 class AddSingleTaskViewModel @Inject constructor(
@@ -32,7 +32,7 @@ class AddSingleTaskViewModel @Inject constructor(
     private val _settings = MutableLiveData<List<SettingItem>>()
     val settings: LiveData<List<SettingItem>> get() = _settings
 
-    private val currentTask = handle.get<SingleTask>(SINGLE_TASK_KEY) ?: SingleTask()
+    private val currentTask = handle.get<Task>(SINGLE_TASK_KEY) ?: Task()
 
     val taskName = MutableLiveData(currentTask.name)
 

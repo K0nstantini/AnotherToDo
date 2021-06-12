@@ -1,6 +1,6 @@
 package com.homemade.anothertodo.add_classes
 
-abstract class BaseTask {
+sealed class delTask {
     abstract val id: Long
     abstract var name: String
     abstract var group: Boolean

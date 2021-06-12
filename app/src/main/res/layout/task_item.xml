@@ -37,7 +37,7 @@
             app:layout_constraintStart_toEndOf="@+id/icon"
             app:layout_constraintTop_toTopOf="parent"
             app:taskListTaskName="@{task}"
-            tools:text="Разметка под турник" />
+            tools:text="Приседания" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

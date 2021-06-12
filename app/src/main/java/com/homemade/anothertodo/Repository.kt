@@ -1,23 +1,18 @@
 package com.homemade.anothertodo
 
 import androidx.annotation.WorkerThread
-import com.homemade.anothertodo.db.dao.RegularTaskDao
 import com.homemade.anothertodo.db.dao.SettingsDao
-import com.homemade.anothertodo.db.dao.SingleTaskDao
-import com.homemade.anothertodo.db.entity.RegularTask
+import com.homemade.anothertodo.db.dao.TaskDao
 import com.homemade.anothertodo.db.entity.Settings
-import com.homemade.anothertodo.db.entity.SingleTask
+import com.homemade.anothertodo.db.entity.Task
+import com.homemade.anothertodo.enums.TypeTask
 import com.homemade.anothertodo.utils.nestedTasks
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class Repository @Inject constructor(
-    private val settingsDao: SettingsDao,
-    private val singleTaskDao: SingleTaskDao,
-    private val regularTaskDao: RegularTaskDao,
-) {
+class Repository @Inject constructor(private val settingsDao: SettingsDao, private val taskDao: TaskDao) {
 
     /** Settings */
 
@@ -33,55 +28,52 @@ class Repository @Inject constructor(
 
     /** ======================================================================================= */
 
+    /** Regular Tasks */
+
+    fun getTasksFlow(type: TypeTask) = when (type) {
+        TypeTask.REGULAR_TASK -> taskDao.getTasksFlow(type.name)
+        TypeTask.SINGLE_TASK -> taskDao.getTasksFlow(type.name)
+    }
+
+    @WorkerThread
+    suspend fun updateTask(task: Task) = taskDao.update(task)
+
+    @WorkerThread
+    suspend fun deleteTasks(tasks: List<Task>) = tasks.forEach { task ->
+        taskDao.deleteTasks(getSingleTasks().nestedTasks(task))
+    }
+
+    /** ======================================================================================= */
+
     /** Single tasks */
 
-    val singleTasksFlow: Flow<List<SingleTask>> = singleTaskDao.getTasksFlow()
+    suspend fun getSingleTask(id: Long) = withContext(Dispatchers.IO) { taskDao.getTask(id) }
 
-    suspend fun getSingleTask(id: Long) = withContext(Dispatchers.IO) { singleTaskDao.getTask(id) }
-
-    suspend fun getSingleTasks() = withContext(Dispatchers.IO) { singleTaskDao.getTasks() }
+    suspend fun getSingleTasks() = withContext(Dispatchers.IO) { taskDao.getTasks() }
 
 
     //    @Suppress("RedundantSuspendModifier")
     @WorkerThread
-    suspend fun insertSingleTask(task: SingleTask) = singleTaskDao.insert(task)
+    suspend fun insertSingleTask(task: Task) = taskDao.insert(task)
 
     @WorkerThread
-    suspend fun updateSingleTask(task: SingleTask) = singleTaskDao.update(task)
+    suspend fun updateSingleTask(task: Task) = taskDao.update(task)
 
     @WorkerThread
-    suspend fun updateSingleTasks(tasks: List<SingleTask>) = singleTaskDao.updateTasks(tasks)
+    suspend fun updateSingleTasks(tasks: List<Task>) = taskDao.updateTasks(tasks)
 
     @WorkerThread
-    suspend fun deleteSingleTask(task: SingleTask) =
-        singleTaskDao.deleteTasks(getSingleTasks().nestedTasks(task))
+    suspend fun deleteSingleTask(task: Task) =
+        taskDao.deleteTasks(getSingleTasks().nestedTasks(task))
 
     @WorkerThread
-    suspend fun deleteSingleTasks(tasks: List<SingleTask>) {
+    suspend fun deleteSingleTasks(tasks: List<Task>) {
         tasks.forEach { task ->
-            singleTaskDao.deleteTasks(getSingleTasks().nestedTasks(task))
+            taskDao.deleteTasks(getSingleTasks().nestedTasks(task))
         }
     }
 
     /** ======================================================================================= */
 
-    /** Regular tasks */
-
-    val regularTasksFlow: Flow<List<RegularTask>> = regularTaskDao.getTasksFlow()
-
-    private suspend fun getRegularTasks() =
-        withContext(Dispatchers.IO) { regularTaskDao.getTasks() }
-
-    @WorkerThread
-    suspend fun insertRegularTask(task: RegularTask) = regularTaskDao.insert(task)
-
-    @WorkerThread
-    suspend fun updateRegularTask(task: RegularTask) = regularTaskDao.update(task)
-
-    @WorkerThread
-    suspend fun deleteRegularTask(task: RegularTask) =
-        regularTaskDao.deleteTasks(getRegularTasks().nestedTasks(task))
-
-    /** ======================================================================================= */
 
 }

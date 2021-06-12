@@ -9,13 +9,13 @@
 
         <variable
             name="vm"
-            type="com.homemade.anothertodo.single_task.list.SingleTaskListViewModel" />
+            type="com.homemade.anothertodo.task.list.TaskListViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".singleTask.list.SingleTaskListFragment">
+        tools:context=".task.list.TaskListFragment">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerview"
@@ -30,7 +30,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:listitem="@layout/single_task_item" />
+            tools:listitem="@layout/task_item" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/add_incident"

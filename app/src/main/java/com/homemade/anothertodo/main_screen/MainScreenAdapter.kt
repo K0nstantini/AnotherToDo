@@ -6,16 +6,16 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.homemade.anothertodo.databinding.MainScreenItemBinding
-import com.homemade.anothertodo.db.entity.SingleTask
+import com.homemade.anothertodo.db.entity.Task
 
-class MainScreenAdapter : ListAdapter<SingleTask, MainScreenAdapter.ViewHolder>(
+class MainScreenAdapter : ListAdapter<Task, MainScreenAdapter.ViewHolder>(
     SingleTaskListDiffCallback()
 ) {
     private lateinit var clickListener: ClickListener
     private var selectedPosition = -1
 
     fun interface ClickListener {
-        fun onClick(task: SingleTask)
+        fun onClick(task: Task)
     }
 
     fun setOnClickListener(listener: ClickListener) {
@@ -44,8 +44,8 @@ class MainScreenAdapter : ListAdapter<SingleTask, MainScreenAdapter.ViewHolder>(
     class ViewHolder private constructor(private val binding: MainScreenItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: SingleTask) {
-            binding.singleTask = item
+        fun bind(item: Task) {
+            binding.task = item
             binding.executePendingBindings()
         }
 
@@ -61,13 +61,13 @@ class MainScreenAdapter : ListAdapter<SingleTask, MainScreenAdapter.ViewHolder>(
 }
 
 
-class SingleTaskListDiffCallback : DiffUtil.ItemCallback<SingleTask>() {
+class SingleTaskListDiffCallback : DiffUtil.ItemCallback<Task>() {
 
-    override fun areItemsTheSame(oldItem: SingleTask, newItem: SingleTask): Boolean {
+    override fun areItemsTheSame(oldItem: Task, newItem: Task): Boolean {
         return oldItem.name == newItem.name
     }
 
-    override fun areContentsTheSame(oldItem: SingleTask, newItem: SingleTask): Boolean {
+    override fun areContentsTheSame(oldItem: Task, newItem: Task): Boolean {
         return oldItem == newItem
     }
 }

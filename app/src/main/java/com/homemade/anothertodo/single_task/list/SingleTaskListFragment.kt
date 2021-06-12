@@ -1,4 +1,4 @@
-package com.homemade.anothertodo.single_tasks.list
+package com.homemade.anothertodo.single_task.list
 
 import android.os.Bundle
 import android.view.Menu
@@ -12,7 +12,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.homemade.anothertodo.R
 import com.homemade.anothertodo.databinding.FragmentSingleTaskListBinding
-import com.homemade.anothertodo.db.entity.SingleTask
+import com.homemade.anothertodo.db.entity.Task
 import com.homemade.anothertodo.utils.PrimaryActionModeCallback
 import com.homemade.anothertodo.utils.delegates.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -84,7 +84,7 @@ class SingleTaskListFragment : Fragment(R.layout.fragment_single_task_list) {
         view?.let {
             callBack.startActionMode(
                 it,
-                R.menu.s_task_contextual_action_bar,
+                R.menu.task_list_contextual_action_bar,
                 getString(R.string.title_action_mode)
             )
         }
@@ -143,7 +143,7 @@ class SingleTaskListFragment : Fragment(R.layout.fragment_single_task_list) {
         return true
     }
 
-    private fun navigateToAddEdit(task: SingleTask?) {
+    private fun navigateToAddEdit(task: Task?) {
         val action = SingleTaskListFragmentDirections
             .actionSingleTaskListFragmentToAddSingleTaskFragment(task)
         findNavController().navigate(action)

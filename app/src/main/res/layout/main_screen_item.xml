@@ -6,8 +6,8 @@
     <data>
 
         <variable
-            name="singleTask"
-            type="com.homemade.anothertodo.db.entity.SingleTask" />
+            name="task"
+            type="com.homemade.anothertodo.db.entity.Task" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -31,7 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/app_margin_norm"
-            android:text="@{singleTask.name}"
+            android:text="@{task.name}"
             android:textSize="@dimen/normalText"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -44,7 +44,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            app:singleTaskDeadline="@{singleTask}"
+            app:taskDeadline="@{task}"
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="@id/task_name"
             app:layout_constraintTop_toBottomOf="@id/task_name"

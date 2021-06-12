@@ -1,4 +1,4 @@
-package com.homemade.anothertodo.single_tasks.add_edit
+package com.homemade.anothertodo.single_task.add_edit
 
 import android.os.Bundle
 import android.view.Menu
@@ -13,8 +13,9 @@ import androidx.navigation.fragment.findNavController
 import com.homemade.anothertodo.R
 import com.homemade.anothertodo.databinding.FragmentAddSingleTaskBinding
 import com.homemade.anothertodo.settingItem.SettingsAdapter
-import com.homemade.anothertodo.single_tasks.list.SELECTED_SINGLE_TASK_ID
-import com.homemade.anothertodo.single_tasks.list.SingleTaskListMode
+import com.homemade.anothertodo.single_task.list.SELECTED_SINGLE_TASK_ID
+import com.homemade.anothertodo.enums.TaskListMode
+import com.homemade.anothertodo.enums.TypeTask
 import com.homemade.anothertodo.utils.delegates.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -106,7 +107,7 @@ class AddSingleTaskFragment : Fragment(R.layout.fragment_add_single_task) {
         val direction =
             (AddSingleTaskFragmentDirections)::actionAddSingleTaskFragmentToSingleTaskListFragment
         val parent = viewModel.parent.value?.second
-        findNavController().navigate(direction(SingleTaskListMode.SELECT_CATALOG, parent))
+        findNavController().navigate(direction(TaskListMode.SELECT_CATALOG, TypeTask.SINGLE_TASK, parent))
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {

@@ -3,8 +3,8 @@ package com.homemade.anothertodo.utils
 import android.app.Application
 import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
-import com.homemade.anothertodo.add_classes.BaseTask
-import com.homemade.anothertodo.db.entity.SingleTask
+import com.homemade.anothertodo.add_classes.delTask
+import com.homemade.anothertodo.db.entity.Task
 
 fun FragmentActivity.toast(res: Int) =
     Toast.makeText(this, this.getString(res), Toast.LENGTH_SHORT).show()
@@ -19,33 +19,24 @@ fun Int.toArray(app: Application): Array<String> = app.resources.getStringArray(
 fun Int.hoursToMilli(): Long = this.toLong() * MINUTES_IN_HOUR * SECONDS_IN_MINUTE * MILLI_IN_SECOND
 
 //FIXME: Не чистая ф-я?
-//fun List<SingleTask>.nestedTasks(
-//    task: SingleTask,
-//    list: MutableList<SingleTask> = mutableListOf()
-//): List<SingleTask> {
-//    list.add(task)
-//    this.filter { it.parent == task.id }.forEach { this.nestedTasks(it, list) }
-//    return list
-//}
-
-fun <T : BaseTask> List<T>.nestedTasks(
-    task: T,
-    list: MutableList<T> = mutableListOf()
-): List<T> {
+fun List<Task>.nestedTasks(
+    task: Task,
+    list: MutableList<Task> = mutableListOf()
+): List<Task> {
     list.add(task)
     this.filter { it.parent == task.id }.forEach { this.nestedTasks(it, list) }
     return list
 }
 
 //FIXME: Не чистая ф-я?
-fun List<SingleTask>.delEmptyGroups(): List<SingleTask> {
-    val emptyGroups = mutableListOf<SingleTask>()
+fun List<Task>.delEmptyGroups(): List<Task> {
+    val emptyGroups = mutableListOf<Task>()
     this.filter { it.group }.forEach { task ->
         if (this.nestedTasks(task).all { it.group }) {
             emptyGroups.add(task)
         }
     }
-    val noEmptyGroups: MutableList<SingleTask> = this.toMutableList()
+    val noEmptyGroups: MutableList<Task> = this.toMutableList()
     emptyGroups.forEach { task ->
         noEmptyGroups.remove(task)
     }

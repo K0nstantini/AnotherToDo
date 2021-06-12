@@ -1,4 +1,4 @@
-package com.homemade.anothertodo.single_tasks.list
+package com.homemade.anothertodo.task.list
 
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -8,23 +8,22 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.homemade.anothertodo.R
-import com.homemade.anothertodo.databinding.SingleTaskItemBinding
-import com.homemade.anothertodo.db.entity.SingleTask
+import com.homemade.anothertodo.databinding.TaskItemBinding
+import com.homemade.anothertodo.db.entity.Task
 
-class SingleTaskListAdapter : ListAdapter<SingleTask, SingleTaskListAdapter.ViewHolder>(
-    SingleTaskListDiffCallback()
-) {
+// TODO: Move
+class TaskAdapter : ListAdapter<Task, TaskAdapter.ViewHolder>(TaskListDiffCallback()) {
     private lateinit var clickListener: ClickListener
     private lateinit var longClickListener: LongClickListener
     private var selectedItems = listOf<Int>()
     private var levels = mapOf<Long, Int>()
 
     fun interface ClickListener {
-        fun onClick(task: SingleTask)
+        fun onClick(task: Task)
     }
 
     fun interface LongClickListener {
-        fun onLongClick(task: SingleTask): Boolean
+        fun onLongClick(task: Task): Boolean
     }
 
     fun setOnClickListener(listener: ClickListener) {
@@ -44,7 +43,7 @@ class SingleTaskListAdapter : ListAdapter<SingleTask, SingleTaskListAdapter.View
             val offset = resources.getInteger(R.integer.padding_left_tree_view)
             setPadding(level * offset, paddingTop, paddingEnd, paddingBottom)
             val name = findViewById<TextView>(R.id.task_name)
-            name.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20F- level * 2) // FIXME
+            name.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20F - level * 2) // FIXME
         }
 
         bind(item)
@@ -56,18 +55,18 @@ class SingleTaskListAdapter : ListAdapter<SingleTask, SingleTaskListAdapter.View
         return ViewHolder.from(parent)
     }
 
-    class ViewHolder private constructor(private val binding: SingleTaskItemBinding) :
+    class ViewHolder private constructor(private val binding: TaskItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: SingleTask) {
-            binding.singleTask = item
+        fun bind(item: Task) {
+            binding.task = item
             binding.executePendingBindings()
         }
 
         companion object {
             fun from(parent: ViewGroup): ViewHolder {
                 val layoutInflater = LayoutInflater.from(parent.context)
-                val binding = SingleTaskItemBinding.inflate(layoutInflater, parent, false)
+                val binding = TaskItemBinding.inflate(layoutInflater, parent, false)
                 return ViewHolder(binding)
             }
         }
@@ -85,14 +84,13 @@ class SingleTaskListAdapter : ListAdapter<SingleTask, SingleTaskListAdapter.View
 
 }
 
+class TaskListDiffCallback : DiffUtil.ItemCallback<Task>() {
 
-class SingleTaskListDiffCallback : DiffUtil.ItemCallback<SingleTask>() {
+    override fun areItemsTheSame(oldItem: Task, newItem: Task) = oldItem.name == newItem.name
 
-    override fun areItemsTheSame(oldItem: SingleTask, newItem: SingleTask): Boolean {
-        return oldItem.name == newItem.name
-    }
-
-    override fun areContentsTheSame(oldItem: SingleTask, newItem: SingleTask): Boolean {
-        return oldItem == newItem
-    }
+    override fun areContentsTheSame(oldItem: Task, newItem: Task) =
+        oldItem.name == newItem.name
+                && oldItem.group == newItem.group
+                && oldItem.groupOpen == newItem.groupOpen
+                && oldItem.parent == newItem.parent
 }

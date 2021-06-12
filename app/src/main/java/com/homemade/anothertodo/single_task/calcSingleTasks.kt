@@ -1,12 +1,12 @@
-package com.homemade.anothertodo.single_tasks
+package com.homemade.anothertodo.single_task
 
 import com.homemade.anothertodo.add_classes.MyCalendar
-import com.homemade.anothertodo.db.entity.SingleTask
+import com.homemade.anothertodo.db.entity.Task
 import com.homemade.anothertodo.utils.delEmptyGroups
 
 
 fun getDatesToActivateSingleTasks(
-    tasks: List<SingleTask>,
+    tasks: List<Task>,
     frequency: Int,
     lastDateActivation: MyCalendar
 ): List<MyCalendar> {
@@ -33,13 +33,13 @@ private fun generateDate(frequency: Int, date: MyCalendar) = MyCalendar(
     (if (date.isEmpty()) MyCalendar().now() else date).milli + 60_000L
 )
 
-private fun noTaskLastDateActivation(tasks: List<SingleTask>, date: MyCalendar) =
+private fun noTaskLastDateActivation(tasks: List<Task>, date: MyCalendar) =
     date.isNoEmpty() && !tasks.any { it.dateActivation == date }
 
 fun getTasksToUpdateDatesActivation(
-    tasks: List<SingleTask>,
+    tasks: List<Task>,
     dates: List<MyCalendar>
-): List<SingleTask> {
+): List<Task> {
     dates.dropLast(1).forEach { date ->
         val tasksToActivate = tasks.filter { it.group || it.readyToActivate }.delEmptyGroups()
         when (val task = generateTask(tasksToActivate)) {
@@ -51,7 +51,7 @@ fun getTasksToUpdateDatesActivation(
 }
 
 
-private fun generateTask(tasks: List<SingleTask>, parent: Long = 0L): SingleTask? {
+private fun generateTask(tasks: List<Task>, parent: Long = 0L): Task? {
     val task = tasks.filter { it.parent == parent && it.dateActivation.isEmpty() }
         .shuffled()
         .randomOrNull()

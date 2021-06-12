@@ -7,10 +7,10 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
 import com.homemade.anothertodo.R
 import com.homemade.anothertodo.add_classes.MyCalendar
-import com.homemade.anothertodo.db.entity.SingleTask
+import com.homemade.anothertodo.db.entity.Task
 
-@BindingAdapter("singleTaskImage")
-fun ImageView.setTaskIcon(item: SingleTask?) {
+@BindingAdapter("taskImage")
+fun ImageView.setTaskIcon(item: Task?) {
     item?.let {
         setImageResource(
             when {
@@ -22,8 +22,8 @@ fun ImageView.setTaskIcon(item: SingleTask?) {
     }
 }
 
-@BindingAdapter("singleTaskListTaskName")
-fun TextView.setTaskListTaskName(item: SingleTask?) {
+@BindingAdapter("taskListTaskName")
+fun TextView.setTaskListTaskName(item: Task?) {
     item?.let {
         text = item.name
         typeface = if (item.group) {
@@ -36,8 +36,8 @@ fun TextView.setTaskListTaskName(item: SingleTask?) {
     }
 }
 
-@BindingAdapter("singleTaskDeadline")
-fun TextView.setSingleTaskDeadline(item: SingleTask?) {
+@BindingAdapter("taskDeadline")
+fun TextView.setSingleTaskDeadline(item: Task?) {
     item?.let {
         val date = item.dateActivation + MyCalendar(item.deadline.hoursToMilli())
         val sDate = date.toString(true)
