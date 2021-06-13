@@ -9,13 +9,13 @@
 
         <variable
             name="vm"
-            type="com.homemade.anothertodo.task.list.TaskListViewModel" />
+            type="com.homemade.anothertodo.task_list.TaskListViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".task.list.TaskListFragment">
+        tools:context=".task_list.TaskListFragment">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerview"

@@ -1,4 +1,4 @@
-package com.homemade.anothertodo.task.list
+package com.homemade.anothertodo.task_list
 
 import androidx.lifecycle.*
 import com.homemade.anothertodo.Repository

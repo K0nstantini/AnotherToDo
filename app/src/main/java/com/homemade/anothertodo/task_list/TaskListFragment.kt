@@ -1,36 +1,34 @@
-package com.homemade.anothertodo.single_task.list
+package com.homemade.anothertodo.task_list
 
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.homemade.anothertodo.R
-import com.homemade.anothertodo.databinding.FragmentSingleTaskListBinding
+import com.homemade.anothertodo.databinding.FragmentTaskListBinding
 import com.homemade.anothertodo.db.entity.Task
-import com.homemade.anothertodo.utils.PrimaryActionModeCallback
+import com.homemade.anothertodo.enums.TypeTask
 import com.homemade.anothertodo.utils.delegates.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 
-const val SELECTED_SINGLE_TASK_ID = "selectedSingleTaskIDKey"
+const val SELECTED_TASK_ID = "selectedSingleTaskIDKey"
 
 @AndroidEntryPoint
-class SingleTaskListFragment : Fragment(R.layout.fragment_single_task_list) {
+class TaskListFragment : Fragment(R.layout.fragment_task_list) {
 
-    private val binding by viewBinding(FragmentSingleTaskListBinding::bind)
-    private val viewModel: SingleTaskListViewModel by viewModels()
-
+    private val binding by viewBinding(FragmentTaskListBinding::bind)
+    private val viewModel: TaskListViewModel by viewModels()
     private val mainActivity: FragmentActivity by lazy { getMActivity() }
 
-    private val adapter: SingleTaskListAdapter = SingleTaskListAdapter()
+    private val adapter: TaskAdapter = TaskAdapter()
 
-    override fun onViewCreated(view: View, bundle: Bundle?) {
-        super.onViewCreated(view, bundle)
+    private var actionMode: ActionMode? = null
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
 
         binding.vm = viewModel
@@ -42,11 +40,11 @@ class SingleTaskListFragment : Fragment(R.layout.fragment_single_task_list) {
         setListeners()
     }
 
+    private fun getMActivity() = requireNotNull(this.activity)
+
     private fun setTitle() {
         (mainActivity as AppCompatActivity).supportActionBar?.title = getString(viewModel.title)
     }
-
-    private fun getMActivity() = requireNotNull(this.activity)
 
     private fun setObserve() = viewModel.apply {
         // Отображение задач в recyclerview
@@ -61,7 +59,13 @@ class SingleTaskListFragment : Fragment(R.layout.fragment_single_task_list) {
             it?.let { adapter.setSelections(it) }
         })
         showActionMode.observe(viewLifecycleOwner, { event ->
-            event.getContentIfNotHandled()?.let { setActionMode(it) }
+            event.getContentIfNotHandled()?.let {
+                actionMode = view?.startActionMode(getCallbackActionMode())
+                actionMode?.title = currentTaskName
+            }
+        })
+        hideActionMode.observe(viewLifecycleOwner, {
+            it?.let { actionMode?.finish() }
         })
         // Отображение иконки подтверждения выбора каталога
         enabledConfirmMenu.observe(viewLifecycleOwner, {
@@ -80,29 +84,24 @@ class SingleTaskListFragment : Fragment(R.layout.fragment_single_task_list) {
         adapter.setOnLongClickListener { viewModel.onItemLongClicked(it) }
     }
 
-    private fun setActionMode(callBack: PrimaryActionModeCallback) {
-        view?.let {
-            callBack.startActionMode(
-                it,
-                R.menu.task_list_contextual_action_bar,
-                getString(R.string.title_action_mode)
-            )
-        }
-        setActionModeListeners(callBack)
-    }
+    private fun getCallbackActionMode() = object : ActionMode.Callback {
 
-    private fun setActionModeListeners(callBack: PrimaryActionModeCallback) {
-        val onClick: (MenuItem) -> Unit = { item ->
+        override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+            mode.menuInflater.inflate(R.menu.task_list_contextual_action_bar, menu)
+            return true
+        }
+
+        override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?) = false
+
+        override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
             when (item.itemId) {
                 R.id.menu_delete -> viewModel.onDeleteClicked()
                 R.id.menu_edit -> viewModel.onEditClicked()
             }
+            return true
         }
 
-        callBack.onActionItemClickListener =
-            PrimaryActionModeCallback.OnActionItemClickListener { onClick(it) }
-        callBack.destroyListener =
-            PrimaryActionModeCallback.DestroyListener { viewModel.destroyActionMode() }
+        override fun onDestroyActionMode(mode: ActionMode?) = viewModel.destroyActionMode()
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
@@ -136,7 +135,7 @@ class SingleTaskListFragment : Fragment(R.layout.fragment_single_task_list) {
     private fun backToParent(): Boolean {
         val cont = findNavController()
         cont.previousBackStackEntry?.savedStateHandle?.set(
-            SELECTED_SINGLE_TASK_ID,
+            SELECTED_TASK_ID,
             viewModel.currentTaskID
         )
         cont.popBackStack()
@@ -144,8 +143,13 @@ class SingleTaskListFragment : Fragment(R.layout.fragment_single_task_list) {
     }
 
     private fun navigateToAddEdit(task: Task?) {
-        val action = SingleTaskListFragmentDirections
-            .actionSingleTaskListFragmentToAddSingleTaskFragment(task)
-        findNavController().navigate(action)
+        findNavController().navigate(
+            when (viewModel.taskType) {
+                TypeTask.REGULAR_TASK -> TODO()
+                TypeTask.SINGLE_TASK -> TaskListFragmentDirections.actionTaskListFragmentToSingleTaskFragment(task)
+            }
+        )
     }
+
+
 }

@@ -1,4 +1,4 @@
-package com.homemade.anothertodo.single_task.add_edit
+package com.homemade.anothertodo.single_task
 
 import androidx.lifecycle.*
 import com.homemade.anothertodo.R
@@ -17,7 +17,7 @@ import javax.inject.Inject
 const val SINGLE_TASK_KEY = "taskKey"
 
 @HiltViewModel
-class AddSingleTaskViewModel @Inject constructor(
+class SingleTaskViewModel @Inject constructor(
     private val repo: Repository,
     handle: SavedStateHandle
 ) : BaseViewModel() {
@@ -45,7 +45,7 @@ class AddSingleTaskViewModel @Inject constructor(
     val parent = Transformations.switchMap(_parent) {
         liveData {
             emit(
-                _settings.value?.get(Sets.PARENT.ordinal) to (repo.getSingleTask(it))
+                _settings.value?.get(Sets.PARENT.ordinal) to (repo.getTask(it))
             )
         }
     }
@@ -56,7 +56,7 @@ class AddSingleTaskViewModel @Inject constructor(
         _settings.value?.get(Sets.DATE_START.ordinal) to (it ?: dateToday)
     }
 
-    private val _deadline = MutableLiveData(currentTask.deadline)
+    private val _deadline = MutableLiveData(currentTask.single.deadline)
     val deadline = Transformations.map(_deadline) {
         _settings.value?.get(Sets.DEADLINE.ordinal) to (it ?: 0)
     }
@@ -71,13 +71,13 @@ class AddSingleTaskViewModel @Inject constructor(
         val list = mutableListOf<SettingItem>()
         list.add(
             Sets.PARENT.ordinal,
-            SettingItem(R.string.settings_add_single_task_title_parent)
+            SettingItem(R.string.settings_add_task_title_parent)
                 .setClear(::onParentClearClicked)
                 .setAction(::onParentClicked)
         )
         list.add(
             Sets.GROUP.ordinal,
-            SettingItem(R.string.settings_add_single_task_title_group)
+            SettingItem(R.string.settings_add_task_title_group)
                 .setSwitch(::onGroupClicked)
                 .setAction(::onGroupClicked)
         )
@@ -138,8 +138,8 @@ class AddSingleTaskViewModel @Inject constructor(
     private fun saveTask() {
         currentTask.setData(taskName, _group, _parent, _dateStart, _deadline)
         when (currentTask.id) {
-            0L -> insertTaskToBase()
-            else -> updateTaskInBase()
+            0L -> currentTask.insert()
+            else -> currentTask.update()
         }
     }
 
@@ -155,18 +155,8 @@ class AddSingleTaskViewModel @Inject constructor(
         }
     }
 
-    private fun insertTaskToBase() = viewModelScope.launch {
-        repo.insertSingleTask(currentTask)
-    }
-
-    private fun updateTaskInBase() = viewModelScope.launch {
-        repo.updateSingleTask(currentTask)
-    }
-
-
-    val compose: ((Int) -> Int) -> ((Int) -> Int) -> (Int) -> Int = { x ->
-        { y -> { z -> x(y(z)) } }
-    }
+    private fun Task.update() = viewModelScope.launch { repo.updateTask(this@update) }
+    private fun Task.insert() = viewModelScope.launch { repo.insertTask(this@insert) }
 
 }
 

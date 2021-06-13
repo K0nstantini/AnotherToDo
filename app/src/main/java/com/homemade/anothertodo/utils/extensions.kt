@@ -2,8 +2,9 @@ package com.homemade.anothertodo.utils
 
 import android.app.Application
 import android.widget.Toast
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.FragmentActivity
-import com.homemade.anothertodo.add_classes.delTask
+import com.homemade.anothertodo.R
 import com.homemade.anothertodo.db.entity.Task
 
 fun FragmentActivity.toast(res: Int) =
@@ -42,3 +43,5 @@ fun List<Task>.delEmptyGroups(): List<Task> {
     }
     return noEmptyGroups
 }
+
+fun FragmentActivity.setCloseIcon() = findViewById<Toolbar>(R.id.topAppBar).setNavigationIcon(R.drawable.ic_close)

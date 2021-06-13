@@ -33,9 +33,9 @@ class SettingItem(@StringRes val title: Int) {
 
     private var actionClear: KFunction0<Unit>? = null
 
-    fun setValue(str: String): SettingItem {
+    fun setValue(str: String?, default: String = ""): SettingItem {
         _showValue = true
-        _value = str
+        _value = str ?: default
         return this
     }
 

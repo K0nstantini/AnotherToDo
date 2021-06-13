@@ -11,9 +11,6 @@
         android:label="@string/app_name"
         tools:layout="@layout/fragment_main_screen">
         <action
-            android:id="@+id/action_mainScreenFragment_to_singleTaskListFragment2"
-            app:destination="@id/singleTaskListFragment" />
-        <action
             android:id="@+id/action_mainScreenFragment_to_statisticFragment"
             app:destination="@id/statisticFragment" />
         <action
@@ -24,37 +21,18 @@
             app:argType="com.homemade.anothertodo.enums.TypeTask" />
     </fragment>
     <fragment
-        android:id="@+id/singleTaskListFragment"
-        android:name="com.homemade.anothertodo.single_task.list.SingleTaskListFragment"
-        android:label="@string/title_single_task_list"
-        tools:layout="@layout/fragment_single_task_list">
-        <action
-            android:id="@+id/action_singleTaskListFragment_to_addSingleTaskFragment"
-            app:destination="@id/addSingleTaskFragment" />
-        <argument
-            android:name="taskModeKey"
-            app:argType="com.homemade.anothertodo.enums.TaskListMode" />
-        <argument
-            android:name="taskTypeKey"
-            app:argType="com.homemade.anothertodo.enums.TypeTask" />
-        <argument
-            android:name="taskKey"
-            android:defaultValue="@null"
-            app:argType="com.homemade.anothertodo.db.entity.Task"
-            app:nullable="true" />
-    </fragment>
-    <fragment
-        android:id="@+id/addSingleTaskFragment"
-        android:name="com.homemade.anothertodo.single_task.add_edit.AddSingleTaskFragment"
+        android:id="@+id/singleTaskFragment"
+        android:name="com.homemade.anothertodo.single_task.SingleTaskFragment"
         android:label="@string/title_add_task_new_task"
-        tools:layout="@layout/fragment_add_single_task">
+        tools:layout="@layout/fragment_single_task">
         <argument
             android:name="taskKey"
             app:argType="com.homemade.anothertodo.db.entity.Task"
-            app:nullable="true" />
+            app:nullable="true"
+            android:defaultValue="@null" />
         <action
-            android:id="@+id/action_addSingleTaskFragment_to_singleTaskListFragment"
-            app:destination="@id/singleTaskListFragment" />
+            android:id="@+id/action_singleTaskFragment_to_taskListFragment"
+            app:destination="@id/taskListFragment" />
     </fragment>
     <fragment
         android:id="@+id/statisticFragment"
@@ -63,7 +41,7 @@
         tools:layout="@layout/fragment_statistics" />
     <fragment
         android:id="@+id/taskListFragment"
-        android:name="com.homemade.anothertodo.task.list.TaskListFragment"
+        android:name="com.homemade.anothertodo.task_list.TaskListFragment"
         tools:layout="@layout/fragment_task_list">
         <argument
             android:name="taskModeKey"
@@ -77,7 +55,24 @@
             app:argType="com.homemade.anothertodo.db.entity.Task"
             app:nullable="true" />
         <action
-            android:id="@+id/action_taskListFragment_to_addSingleTaskFragment"
-            app:destination="@id/addSingleTaskFragment" />
+            android:id="@+id/action_taskListFragment_to_singleTaskFragment"
+            app:destination="@id/singleTaskFragment" />
+        <action
+            android:id="@+id/action_taskListFragment_to_regularTaskFragment"
+            app:destination="@id/regularTaskFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/regularTaskFragment"
+        android:name="com.homemade.anothertodo.regular_task.RegularTaskFragment"
+        android:label="@string/title_add_task_new_task"
+        tools:layout="@layout/fragment_regular_task" >
+        <argument
+            android:name="taskKey"
+            app:argType="com.homemade.anothertodo.db.entity.Task"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <action
+            android:id="@+id/action_regularTaskFragment_to_taskListFragment"
+            app:destination="@id/taskListFragment" />
     </fragment>
 </navigation>

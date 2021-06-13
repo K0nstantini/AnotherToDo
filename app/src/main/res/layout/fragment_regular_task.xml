@@ -7,7 +7,7 @@
 
         <variable
             name="vm"
-            type="com.homemade.anothertodo.single_task.add_edit.AddSingleTaskViewModel" />
+            type="com.homemade.anothertodo.regular_task.RegularTaskViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

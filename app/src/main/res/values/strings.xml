@@ -37,13 +37,14 @@
     <string name="hint_edit_text_name">Наименование</string>
 
     <!--    Settings Items-->
-    <string name="settings_add_single_task_title_group">Группа</string>
-    <string name="settings_add_single_task_title_parent">В группе</string>
+    <string name="settings_add_task_title_group">Группа</string>
+    <string name="settings_add_task_title_parent">В группе</string>
     <string name="settings_main_catalog_text">Основной каталог</string>
     <string name="settings_add_single_task_title_date_start">Дата начала</string>
     <string name="settings_add_single_task_title_deadline">Время на выполнение</string>
     <string name="settings_add_single_task_deadline_zero_text">Укажите время, отведенное на выполнение задачи</string>
     <string name="settings_add_single_task_deadline_time_hours_text">%dч</string>
+    <string name="settings_add_regular_task_choose_from_group_text">Выбирать из группы</string>
 
 
     <!--    Alert-->
@@ -69,7 +70,5 @@
 
     <!--    Statistic texts-->
     <string name="statistic_text_count_points">Количество баллов:</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

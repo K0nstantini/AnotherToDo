@@ -1,7 +1,6 @@
 package com.homemade.anothertodo.db.dao
 
 import androidx.room.*
-import com.homemade.anothertodo.add_classes.delTask
 import com.homemade.anothertodo.db.entity.Task
 import kotlinx.coroutines.flow.Flow
 

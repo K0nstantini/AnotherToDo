@@ -1,32 +1,30 @@
-package com.homemade.anothertodo.single_task.add_edit
+package com.homemade.anothertodo.single_task
 
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.homemade.anothertodo.R
-import com.homemade.anothertodo.databinding.FragmentAddSingleTaskBinding
-import com.homemade.anothertodo.settingItem.SettingsAdapter
-import com.homemade.anothertodo.single_task.list.SELECTED_SINGLE_TASK_ID
+import com.homemade.anothertodo.databinding.FragmentSingleTaskBinding
 import com.homemade.anothertodo.enums.TaskListMode
 import com.homemade.anothertodo.enums.TypeTask
+import com.homemade.anothertodo.settingItem.SettingsAdapter
+import com.homemade.anothertodo.task_list.SELECTED_TASK_ID
 import com.homemade.anothertodo.utils.delegates.viewBinding
+import com.homemade.anothertodo.utils.setCloseIcon
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class AddSingleTaskFragment : Fragment(R.layout.fragment_add_single_task) {
+class SingleTaskFragment : Fragment(R.layout.fragment_single_task) {
 
-    private val binding by viewBinding(FragmentAddSingleTaskBinding::bind)
-    private val viewModel: AddSingleTaskViewModel by viewModels()
-
+    private val binding by viewBinding(FragmentSingleTaskBinding::bind)
+    private val viewModel: SingleTaskViewModel by viewModels()
     private val mainActivity: FragmentActivity by lazy { getMActivity() }
-
     private val adapter: SettingsAdapter = SettingsAdapter()
 
     override fun onViewCreated(view: View, bundle: Bundle?) {
@@ -37,7 +35,8 @@ class AddSingleTaskFragment : Fragment(R.layout.fragment_add_single_task) {
         binding.lifecycleOwner = viewLifecycleOwner
         binding.recyclerview.adapter = adapter
 
-        setCloseIcon(mainActivity)
+        mainActivity.setCloseIcon()
+
         setObserve()
         setListeners()
 
@@ -57,11 +56,7 @@ class AddSingleTaskFragment : Fragment(R.layout.fragment_add_single_task) {
             adapter.notifyDataSetChanged()
         })
         parent.observe(viewLifecycleOwner, { (set, value) ->
-            val text = when (value) {
-                null -> getString(R.string.settings_main_catalog_text)
-                else -> value.name
-            }
-            set?.setValue(text)
+            set?.setValue(value?.name, getString(R.string.settings_main_catalog_text))
             set?.setShowClear(value != null)
             adapter.notifyDataSetChanged()
         })
@@ -89,23 +84,17 @@ class AddSingleTaskFragment : Fragment(R.layout.fragment_add_single_task) {
             event.getContentIfNotHandled()?.let { navigateToParent() }
         })
         val handle = findNavController().currentBackStackEntry?.savedStateHandle
-        handle?.getLiveData<Long?>(SELECTED_SINGLE_TASK_ID)?.observe(viewLifecycleOwner) { id ->
+        handle?.getLiveData<Long?>(SELECTED_TASK_ID)?.observe(viewLifecycleOwner) { id ->
             setParent(id)
-            handle.remove<Long>(SELECTED_SINGLE_TASK_ID)
+            handle.remove<Long>(SELECTED_TASK_ID)
         }
     }
 
-    private fun setListeners() {
-        adapter.setOnClickListener { it.action?.invoke() }
-    }
-
-    private fun setCloseIcon(mainActivity: FragmentActivity) {
-        mainActivity.findViewById<Toolbar>(R.id.topAppBar).setNavigationIcon(R.drawable.ic_close)
-    }
+    private fun setListeners() = adapter.setOnClickListener { it.action?.invoke() }
 
     private fun navigateToParent() {
         val direction =
-            (AddSingleTaskFragmentDirections)::actionAddSingleTaskFragmentToSingleTaskListFragment
+            (SingleTaskFragmentDirections)::actionSingleTaskFragmentToTaskListFragment
         val parent = viewModel.parent.value?.second
         findNavController().navigate(direction(TaskListMode.SELECT_CATALOG, TypeTask.SINGLE_TASK, parent))
     }

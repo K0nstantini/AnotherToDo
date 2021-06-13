@@ -38,8 +38,8 @@ class MainScreenViewModel @Inject constructor(
 
     private val tasksLive: LiveData<List<Task>> = repo.getTasksFlow(TypeTask.SINGLE_TASK).asLiveData()
     val shownSingleTasks = Transformations.map(tasksLive) { tasks ->
-        tasks.filter { it.dateActivation.isNoEmpty() }
-            .sortedBy { it.dateActivation.milli + it.deadline.hoursToMilli() }
+        tasks.filter { it.single.dateActivation.isNoEmpty() }
+            .sortedBy { it.single.dateActivation.milli + it.single.deadline.hoursToMilli() }
     }
     private val tasks: List<Task> get() = tasksLive.value ?: emptyList()
 
@@ -81,12 +81,12 @@ class MainScreenViewModel @Inject constructor(
     // FIXME: Del
     private suspend fun delClearData() {
         settings.apply { singleTask.dateActivation = MyCalendar() }.update()
-        val tasks = repo.getSingleTasks()
-        tasks.filter { it.dateActivation.isNoEmpty() }.forEach { task ->
-            task.apply { dateActivation = MyCalendar() }.update()
+        val tasks = repo.getTasks()
+        tasks.filter { it.single.dateActivation.isNoEmpty() }.forEach { task ->
+            task.apply { single.dateActivation = MyCalendar() }.update()
         }
-        tasks.filter { it.rolls > 0 }.forEach { task ->
-            task.apply { rolls = 0 }.update()
+        tasks.filter { it.single.rolls > 0 }.forEach { task ->
+            task.apply { single.rolls = 0 }.update()
         }
     }
 
@@ -143,7 +143,7 @@ class MainScreenViewModel @Inject constructor(
 
     private fun selectTimeToPostponeCurrentTask(index: Int) {
         currentTask.value?.apply {
-            deadline += (index + 1) * sPostponeCurrentTask
+            single.deadline += (index + 1) * sPostponeCurrentTask
             settings.removePoints(index + 1)
             destroyActionMode()
         }?.update()
@@ -168,10 +168,10 @@ class MainScreenViewModel @Inject constructor(
         if (newTask == null) {
             setMessage(R.string.message_roll_not_find_task)
         } else if (oldTask != null) {
-            newTask.apply { dateActivation = oldTask.dateActivation }.update()
+            newTask.apply { single.dateActivation = oldTask.single.dateActivation }.update()
             oldTask.apply {
-                dateActivation = MyCalendar()
-                rolls++
+                single.dateActivation = MyCalendar()
+                single.rolls++
             }.update()
             settings.removePoints(settings.singleTask.pointsForRoll)
             destroyActionMode()
@@ -180,7 +180,7 @@ class MainScreenViewModel @Inject constructor(
 
     private fun doneSingleTask() {
 //        currentTask.value?.delete()
-        currentTask.value?.apply { dateActivation = MyCalendar() }?.update() // FIXME: Del
+        currentTask.value?.apply { single.dateActivation = MyCalendar() }?.update() // FIXME: Del
         if (settings.singleTask.rewards) {
             settings.addPoints(settings.singleTask.pointsForTask)
         }
@@ -217,14 +217,8 @@ class MainScreenViewModel @Inject constructor(
 
     private fun Task.position() = shownSingleTasks.value?.indexOf(this) ?: -1
 
-    private fun Task.update() =
-        viewModelScope.launch { repo.updateSingleTask(this@update) }
-
-    private fun List<Task>.update() =
-        viewModelScope.launch { repo.updateSingleTasks(this@update) }
-
-    private fun Task.delete() =
-        viewModelScope.launch { repo.deleteSingleTask(this@delete) }
-
+    private fun Task.update() = viewModelScope.launch { repo.updateTask(this@update) }
+    private fun List<Task>.update() = viewModelScope.launch { repo.updateTasks(this@update) }
+    private fun Task.delete() = viewModelScope.launch { repo.deleteTask(this@delete) }
     private fun Settings.update() = viewModelScope.launch { repo.updateSettings(this@update) }
 }

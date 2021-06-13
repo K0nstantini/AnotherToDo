@@ -39,7 +39,7 @@ fun TextView.setTaskListTaskName(item: Task?) {
 @BindingAdapter("taskDeadline")
 fun TextView.setSingleTaskDeadline(item: Task?) {
     item?.let {
-        val date = item.dateActivation + MyCalendar(item.deadline.hoursToMilli())
+        val date = item.single.dateActivation + MyCalendar(item.single.deadline.hoursToMilli())
         val sDate = date.toString(true)
         text = resources.getString(R.string.main_screen_single_task_second_text, sDate)
     }

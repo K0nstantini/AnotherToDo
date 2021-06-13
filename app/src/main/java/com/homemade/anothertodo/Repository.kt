@@ -28,52 +28,36 @@ class Repository @Inject constructor(private val settingsDao: SettingsDao, priva
 
     /** ======================================================================================= */
 
-    /** Regular Tasks */
+    /** Tasks */
+
+    @WorkerThread
+    suspend fun insertTask(task: Task) = taskDao.insert(task)
+
+    @WorkerThread
+    suspend fun updateTask(task: Task) = taskDao.update(task)
+
+    @WorkerThread
+    suspend fun updateTasks(tasks: List<Task>) = taskDao.updateTasks(tasks)
+
+    @WorkerThread
+    suspend fun deleteTask(task: Task) = taskDao.deleteTasks(getTasks().nestedTasks(task))
+
+    @WorkerThread
+    suspend fun deleteTasks(tasks: List<Task>) = tasks.forEach { task ->
+        taskDao.deleteTasks(getTasks().nestedTasks(task))
+    }
 
     fun getTasksFlow(type: TypeTask) = when (type) {
         TypeTask.REGULAR_TASK -> taskDao.getTasksFlow(type.name)
         TypeTask.SINGLE_TASK -> taskDao.getTasksFlow(type.name)
     }
 
-    @WorkerThread
-    suspend fun updateTask(task: Task) = taskDao.update(task)
+    suspend fun getTasks() = withContext(Dispatchers.IO) { taskDao.getTasks() }
 
-    @WorkerThread
-    suspend fun deleteTasks(tasks: List<Task>) = tasks.forEach { task ->
-        taskDao.deleteTasks(getSingleTasks().nestedTasks(task))
-    }
+    suspend fun getTask(id: Long) = withContext(Dispatchers.IO) { taskDao.getTask(id) }
 
     /** ======================================================================================= */
 
-    /** Single tasks */
-
-    suspend fun getSingleTask(id: Long) = withContext(Dispatchers.IO) { taskDao.getTask(id) }
-
-    suspend fun getSingleTasks() = withContext(Dispatchers.IO) { taskDao.getTasks() }
-
-
-    //    @Suppress("RedundantSuspendModifier")
-    @WorkerThread
-    suspend fun insertSingleTask(task: Task) = taskDao.insert(task)
-
-    @WorkerThread
-    suspend fun updateSingleTask(task: Task) = taskDao.update(task)
-
-    @WorkerThread
-    suspend fun updateSingleTasks(tasks: List<Task>) = taskDao.updateTasks(tasks)
-
-    @WorkerThread
-    suspend fun deleteSingleTask(task: Task) =
-        taskDao.deleteTasks(getSingleTasks().nestedTasks(task))
-
-    @WorkerThread
-    suspend fun deleteSingleTasks(tasks: List<Task>) {
-        tasks.forEach { task ->
-            taskDao.deleteTasks(getSingleTasks().nestedTasks(task))
-        }
-    }
-
-    /** ======================================================================================= */
 
 
 }

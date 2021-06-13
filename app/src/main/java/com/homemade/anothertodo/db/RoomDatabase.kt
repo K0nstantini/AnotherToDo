@@ -3,10 +3,8 @@ package com.homemade.anothertodo.db
 import android.content.Context
 import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.homemade.anothertodo.db.dao.delRegularTaskDao
 import com.homemade.anothertodo.db.dao.SettingsDao
 import com.homemade.anothertodo.db.dao.TaskDao
-import com.homemade.anothertodo.db.entity.delRegularTask
 import com.homemade.anothertodo.db.entity.Settings
 import com.homemade.anothertodo.db.entity.Task
 import com.homemade.anothertodo.enums.TypeTask
@@ -15,7 +13,7 @@ import kotlinx.coroutines.launch
 
 @Database(
     entities = [Settings::class, Task::class],
-    version = 1,
+    version = 2,
     exportSchema = false,
 //    autoMigrations = [
 //        AutoMigration(from = 1, to = 2)
@@ -51,10 +49,12 @@ abstract class AppDatabase : RoomDatabase() {
 
             /** Regular Tasks */
 
-            dao.insert(Task(name = "Игра на гитаре", type = TypeTask.REGULAR_TASK))
+            val type = TypeTask.REGULAR_TASK
+            dao.insert(Task(name = "Игра на гитаре", type = type))
 
             /** Single Tasks */
 
+            val single = Task.SingleTask()
             val routine = dao.insert(Task(name = "Быт", group = true))
             dao.insert(Task(name = "Убрать на столе", parent = routine))
             dao.insert(Task(name = "Убраться в отделении на столе", parent = routine))
@@ -68,7 +68,7 @@ abstract class AppDatabase : RoomDatabase() {
             dao.insert(Task(name = "Компьютер в зале", parent = routine))
             dao.insert(Task(name = "Сиденье унитаза", parent = routine))
             dao.insert(Task(name = "Почистить кофемашину", parent = routine))
-            dao.insert(Task(name = "Сдать анализы", deadline = 168, parent = routine))
+            dao.insert(Task(name = "Сдать анализы", single = single.apply { deadline = 168 }, parent = routine))
 
             val pc = dao.insert(Task(name = "Компьютер, телефон и пр.", group = true))
             dao.insert(Task(name = "Придумать систему бэкапов", parent = pc))
@@ -77,7 +77,7 @@ abstract class AppDatabase : RoomDatabase() {
             dao.insert(Task(name = "Рабочий стол (ноут)", parent = pc))
             dao.insert(Task(name = "Рабочий стол (комп)", parent = pc))
             dao.insert(Task(name = "Разобраться с телефоном, бэкап и пр.", parent = pc))
-            dao.insert(Task(name = "Купить что-нибудь в форе", deadline = 72, parent = pc))
+            dao.insert(Task(name = "Купить что-нибудь в форе", single = single.apply { deadline = 72 }, parent = pc))
 
             val poker = dao.insert(Task(name = "Покер", group = true))
             dao.insert(Task(name = "Сыграть в покер", parent = poker))

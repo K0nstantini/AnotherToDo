@@ -34,7 +34,7 @@ private fun generateDate(frequency: Int, date: MyCalendar) = MyCalendar(
 )
 
 private fun noTaskLastDateActivation(tasks: List<Task>, date: MyCalendar) =
-    date.isNoEmpty() && !tasks.any { it.dateActivation == date }
+    date.isNoEmpty() && !tasks.any { it.single.dateActivation == date }
 
 fun getTasksToUpdateDatesActivation(
     tasks: List<Task>,
@@ -44,15 +44,15 @@ fun getTasksToUpdateDatesActivation(
         val tasksToActivate = tasks.filter { it.group || it.readyToActivate }.delEmptyGroups()
         when (val task = generateTask(tasksToActivate)) {
             null -> return@forEach
-            else -> task.dateActivation = date
+            else -> task.single.dateActivation = date
         }
     }
-    return tasks.filter { dates.contains(it.dateActivation) }
+    return tasks.filter { dates.contains(it.single.dateActivation) }
 }
 
 
 private fun generateTask(tasks: List<Task>, parent: Long = 0L): Task? {
-    val task = tasks.filter { it.parent == parent && it.dateActivation.isEmpty() }
+    val task = tasks.filter { it.parent == parent && it.single.dateActivation.isEmpty() }
         .shuffled()
         .randomOrNull()
     return when {
