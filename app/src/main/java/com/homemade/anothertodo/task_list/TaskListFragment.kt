@@ -14,7 +14,7 @@ import com.homemade.anothertodo.enums.TypeTask
 import com.homemade.anothertodo.utils.delegates.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 
-const val SELECTED_TASK_ID = "selectedSingleTaskIDKey"
+const val SELECTED_TASK_ID = "selectedTaskIDKey"
 
 @AndroidEntryPoint
 class TaskListFragment : Fragment(R.layout.fragment_task_list) {
@@ -61,13 +61,20 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
         showActionMode.observe(viewLifecycleOwner, { event ->
             event.getContentIfNotHandled()?.let {
                 actionMode = view?.startActionMode(getCallbackActionMode())
-                actionMode?.title = currentTaskName
             }
         })
+        actionModeTitle.observe(viewLifecycleOwner) {
+            actionMode?.title = it
+        }
         hideActionMode.observe(viewLifecycleOwner, {
             it?.let { actionMode?.finish() }
         })
-        // Отображение иконки подтверждения выбора каталога
+        showDoneActionMenu.observe(viewLifecycleOwner) { show ->
+            actionMode?.menu?.findItem(R.id.menu_done)?.let { it.isVisible = show }
+        }
+        showEditActionMenu.observe(viewLifecycleOwner) { show ->
+            actionMode?.menu?.findItem(R.id.menu_edit)?.let { it.isVisible = show }
+        }
         enabledConfirmMenu.observe(viewLifecycleOwner, {
             it?.let { mainActivity.invalidateOptionsMenu() }
         })
@@ -91,7 +98,7 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
             return true
         }
 
-        override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?) = false
+        override fun onPrepareActionMode(mode: ActionMode, menu: Menu) = false
 
         override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
             when (item.itemId) {
@@ -145,7 +152,7 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
     private fun navigateToAddEdit(task: Task?) {
         findNavController().navigate(
             when (viewModel.taskType) {
-                TypeTask.REGULAR_TASK -> TODO()
+                TypeTask.REGULAR_TASK -> TaskListFragmentDirections.actionTaskListFragmentToRegularTaskFragment(task)
                 TypeTask.SINGLE_TASK -> TaskListFragmentDirections.actionTaskListFragmentToSingleTaskFragment(task)
             }
         )

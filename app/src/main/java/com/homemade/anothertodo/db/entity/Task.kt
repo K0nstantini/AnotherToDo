@@ -39,7 +39,7 @@ data class Task(
         var timeTo: Int = 0,
         var periodGeneration: Int = 0,                           // Период генерации задач в днях, например 0-3 задач за 2 дня
         var workingTime: String = "",                            // Дни, когда будет активироваться задача (например только в будни или 2 через 2 дня)
-        var chooseFromGroup: Boolean = false,                      // Задачи будут рандомно выбираться из всей группы
+        var chooseFromGroup: Boolean = false,                    // Задачи будут рандомно выбираться из всей группы
         var dateActivated: Long = 0L,                            // Дата активации задачи
         var finishDate: Long = 0L,                               // Задача работает до этой даты
     ) : Parcelable
@@ -60,13 +60,19 @@ data class Task(
 
     fun canRoll(settings: Settings) = single.rolls < settings.singleTask.numberPossibleRolls
 
-    private fun setName(_name: LiveData<String>) = _name.value?.let { name = it }
-    private fun setGroup(_group: LiveData<Boolean>) = _group.value?.let { group = it }
-    private fun setParent(_parent: LiveData<Long>) = _parent.value?.let { parent = it }
+    /** General */
+    fun setName(_name: LiveData<String>) = this.apply { _name.value?.let { name = it } }
+    fun setGroup(_group: LiveData<Boolean>) = this.apply { _group.value?.let { group = it } }
+    fun setParent(_parent: LiveData<Long>) = this.apply { _parent.value?.let { parent = it } }
+
+    /** Regular task */
+    fun setFromGroup(_choose: LiveData<Boolean>) = this.apply { _choose.value?.let { regular.chooseFromGroup = it } }
+
+    /** Single task */
     private fun setDateStart(date: LiveData<MyCalendar>) = date.value?.let { single.dateStart = it }
     private fun setDeadline(_deadline: LiveData<Int>) = _deadline.value?.let { single.deadline = it }
 
-    fun setData(
+    fun setDataSingleTask(
         _name: LiveData<String>,
         _group: LiveData<Boolean>,
         _parent: LiveData<Long>,

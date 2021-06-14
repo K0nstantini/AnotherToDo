@@ -14,9 +14,9 @@ import com.homemade.anothertodo.databinding.FragmentRegularTaskBinding
 import com.homemade.anothertodo.enums.TaskListMode
 import com.homemade.anothertodo.enums.TypeTask
 import com.homemade.anothertodo.settingItem.SettingsAdapter
-import com.homemade.anothertodo.single_task.SingleTaskFragmentDirections
 import com.homemade.anothertodo.task_list.SELECTED_TASK_ID
 import com.homemade.anothertodo.utils.delegates.viewBinding
+import com.homemade.anothertodo.utils.setAppTitle
 import com.homemade.anothertodo.utils.setCloseIcon
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -36,7 +36,10 @@ class RegularTaskFragment : Fragment(R.layout.fragment_regular_task) {
         binding.lifecycleOwner = viewLifecycleOwner
         binding.recyclerview.adapter = adapter
 
-        mainActivity.setCloseIcon()
+        mainActivity.apply {
+            setCloseIcon()
+            setAppTitle(viewModel.taskName.value)
+        }
 
         setObserve()
         setListeners()
@@ -81,9 +84,9 @@ class RegularTaskFragment : Fragment(R.layout.fragment_regular_task) {
 
     private fun navigateToParent() {
         val direction =
-            (SingleTaskFragmentDirections)::actionSingleTaskFragmentToTaskListFragment
+            (RegularTaskFragmentDirections)::actionRegularTaskFragmentToTaskListFragment
         findNavController()
-            .navigate(direction(TaskListMode.SELECT_CATALOG, TypeTask.SINGLE_TASK, viewModel.parent.value))
+            .navigate(direction(TaskListMode.SELECT_CATALOG, TypeTask.REGULAR_TASK, viewModel.parent.value))
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {

@@ -5,6 +5,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.viewModels
@@ -16,6 +17,7 @@ import com.homemade.anothertodo.enums.TypeTask
 import com.homemade.anothertodo.settingItem.SettingsAdapter
 import com.homemade.anothertodo.task_list.SELECTED_TASK_ID
 import com.homemade.anothertodo.utils.delegates.viewBinding
+import com.homemade.anothertodo.utils.setAppTitle
 import com.homemade.anothertodo.utils.setCloseIcon
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -35,7 +37,10 @@ class SingleTaskFragment : Fragment(R.layout.fragment_single_task) {
         binding.lifecycleOwner = viewLifecycleOwner
         binding.recyclerview.adapter = adapter
 
-        mainActivity.setCloseIcon()
+        mainActivity.apply {
+            setCloseIcon()
+            setAppTitle(viewModel.taskName.value)
+        }
 
         setObserve()
         setListeners()

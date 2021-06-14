@@ -136,7 +136,7 @@ class SingleTaskViewModel @Inject constructor(
     }
 
     private fun saveTask() {
-        currentTask.setData(taskName, _group, _parent, _dateStart, _deadline)
+        currentTask.setDataSingleTask(taskName, _group, _parent, _dateStart, _deadline)
         when (currentTask.id) {
             0L -> currentTask.insert()
             else -> currentTask.update()

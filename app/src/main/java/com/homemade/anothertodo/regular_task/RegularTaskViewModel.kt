@@ -5,6 +5,7 @@ import com.homemade.anothertodo.R
 import com.homemade.anothertodo.Repository
 import com.homemade.anothertodo.add_classes.BaseViewModel
 import com.homemade.anothertodo.db.entity.Task
+import com.homemade.anothertodo.enums.TypeTask
 import com.homemade.anothertodo.settingItem.SettingItem
 import com.homemade.anothertodo.utils.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -49,7 +50,7 @@ class RegularTaskViewModel @Inject constructor(
 
     val settings = Transformations.map(_settings) { it.values.toList() }
 
-    private val currentTask = handle.get<Task>(REGULAR_TASK_KEY) ?: Task()
+    private val currentTask = handle.get<Task>(REGULAR_TASK_KEY) ?: Task(type = TypeTask.REGULAR_TASK)
 
     val taskName = MutableLiveData(currentTask.name)
 
@@ -69,6 +70,7 @@ class RegularTaskViewModel @Inject constructor(
         _settings.value?.get(Sets.PARENT) to (parentID == null)
     }
 
+    /** Navigation */
     private val _navigateToBack = MutableLiveData<Event<Boolean>>()
     val navigateToBack: LiveData<Event<Boolean>> get() = _navigateToBack
 
@@ -89,7 +91,7 @@ class RegularTaskViewModel @Inject constructor(
 
     private fun onGroupClicked() {
         _group.value = !(_group.value ?: false)
-        setEnabledSettings()
+//        setEnabledSettings()
     }
 
     private fun onChooseFromGroupClicked() {
@@ -103,12 +105,15 @@ class RegularTaskViewModel @Inject constructor(
     }
 
     private fun saveTask() {
-        TODO()
-//        currentTask.setData(taskName, _group, _parent, _dateStart, _deadline)
-//        when (currentTask.id) {
-//            0L -> insertTaskToBase()
-//            else -> updateTaskInBase()
-//        }
+        // TODO: Проверить заполнение
+        currentTask
+            .setName(taskName)
+            .setGroup(_group)
+            .setParent(_parentID)
+        when (currentTask.id) {
+            0L -> currentTask.insert()
+            else -> currentTask.update()
+        }
     }
 
 

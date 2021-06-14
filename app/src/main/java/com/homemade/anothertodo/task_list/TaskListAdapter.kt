@@ -88,9 +88,5 @@ class TaskListDiffCallback : DiffUtil.ItemCallback<Task>() {
 
     override fun areItemsTheSame(oldItem: Task, newItem: Task) = oldItem.name == newItem.name
 
-    override fun areContentsTheSame(oldItem: Task, newItem: Task) =
-        oldItem.name == newItem.name
-                && oldItem.group == newItem.group
-                && oldItem.groupOpen == newItem.groupOpen
-                && oldItem.parent == newItem.parent
+    override fun areContentsTheSame(oldItem: Task, newItem: Task) = oldItem == newItem
 }

@@ -10,6 +10,19 @@ import com.homemade.anothertodo.db.entity.Task
 fun FragmentActivity.toast(res: Int) =
     Toast.makeText(this, this.getString(res), Toast.LENGTH_SHORT).show()
 
+private fun FragmentActivity.appBar() =
+    findViewById<Toolbar>(R.id.topAppBar)
+
+fun FragmentActivity.setCloseIcon() =
+    appBar().setNavigationIcon(R.drawable.ic_close)
+
+fun FragmentActivity.setAppTitle(_title: String?): Toolbar = appBar().apply {
+    title = when (_title) {
+        null, "" -> title
+        else -> _title
+    }
+}
+
 fun Int.toStrTime(): String {
     return (this / 60).toString().padStart(2, '0') + ':' +
             (this % 60).toString().padStart(2, '0')
@@ -43,5 +56,3 @@ fun List<Task>.delEmptyGroups(): List<Task> {
     }
     return noEmptyGroups
 }
-
-fun FragmentActivity.setCloseIcon() = findViewById<Toolbar>(R.id.topAppBar).setNavigationIcon(R.drawable.ic_close)
