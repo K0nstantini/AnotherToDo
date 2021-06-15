@@ -1,6 +1,5 @@
 package com.homemade.anothertodo.task_list
 
-import android.opengl.Visibility
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
@@ -15,7 +14,7 @@ import com.homemade.anothertodo.R
 import com.homemade.anothertodo.databinding.FragmentTaskListBinding
 import com.homemade.anothertodo.db.entity.Task
 import com.homemade.anothertodo.enums.TypeTask
-import com.homemade.anothertodo.task_list.TaskListViewModel.Event1
+import com.homemade.anothertodo.task_list.TaskListViewModel.Event
 import com.homemade.anothertodo.utils.delegates.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
@@ -64,8 +63,8 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewEvents.collect {
                     when (it) {
-                        is Event1.NavigateToAddEdit -> navigateToAddEdit(it.task)
-                        is Event1.ShowActionMode -> when (it.show) {
+                        is Event.NavigateToAddEdit -> navigateToAddEdit(it.task)
+                        is Event.ShowActionMode -> when (it.show) {
                             true -> actionMode = view?.startActionMode(getCallbackActionMode())
                             false -> actionMode?.finish()
                         }
@@ -76,18 +75,6 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
     }
 
     private fun setObserve() = viewModel.apply {
-        // Отображение задач в recyclerview
-        shownTasks.observe(viewLifecycleOwner, {
-            it?.let { adapter.submitList(it) }
-        })
-        // Установить уровни иерархии в адаптере recyclerview
-        levels.observe(viewLifecycleOwner, {
-            adapter.setLevels(it)
-        })
-        enabledConfirmMenu.observe(viewLifecycleOwner, {
-            it?.let { mainActivity.invalidateOptionsMenu() }
-        })
-
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 showAddButton.collect {
@@ -120,6 +107,21 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
                 showEditActionMenu.collect { show ->
                     actionMode?.menu?.findItem(R.id.menu_edit)?.let { it.isVisible = show }
                 }
+            }
+        }
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                enabledConfirmMenu.collect { mainActivity.invalidateOptionsMenu() }
+            }
+        }
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                shownTasks.collect { adapter.submitList(it) }
+            }
+        }
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                levels.collect { adapter.setLevels(it) }
             }
         }
     }
