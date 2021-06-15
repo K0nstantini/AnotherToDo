@@ -5,8 +5,6 @@
 
     <data>
 
-        <import type="android.view.View" />
-
         <variable
             name="vm"
             type="com.homemade.anothertodo.task_list.TaskListViewModel" />
@@ -33,10 +31,9 @@
             tools:listitem="@layout/task_item" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/add_incident"
+            android:id="@+id/add_task"
             style="@style/FloatingButton"
             android:onClick="@{() -> vm.onAddClicked()}"
-            android:visibility="@{vm.showAddButton ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:srcCompat="@drawable/ic_plus"

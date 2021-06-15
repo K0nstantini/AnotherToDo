@@ -18,7 +18,7 @@ const val REGULAR_TASK_KEY = "taskKey"
 class RegularTaskViewModel @Inject constructor(
     private val repo: Repository,
     handle: SavedStateHandle
-) : BaseViewModel() {
+) : BaseViewModel<String>() {
 
     enum class Sets {
         PARENT,

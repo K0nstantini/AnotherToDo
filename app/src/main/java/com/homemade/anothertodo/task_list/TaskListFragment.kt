@@ -1,18 +1,25 @@
 package com.homemade.anothertodo.task_list
 
+import android.opengl.Visibility
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.homemade.anothertodo.R
 import com.homemade.anothertodo.databinding.FragmentTaskListBinding
 import com.homemade.anothertodo.db.entity.Task
 import com.homemade.anothertodo.enums.TypeTask
+import com.homemade.anothertodo.task_list.TaskListViewModel.Event1
 import com.homemade.anothertodo.utils.delegates.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 const val SELECTED_TASK_ID = "selectedTaskIDKey"
 
@@ -26,6 +33,11 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
     private val adapter: TaskAdapter = TaskAdapter()
 
     private var actionMode: ActionMode? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setEventsObserve()
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -46,6 +58,23 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
         (mainActivity as AppCompatActivity).supportActionBar?.title = getString(viewModel.title)
     }
 
+
+    private fun setEventsObserve() = viewModel.apply {
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewEvents.collect {
+                    when (it) {
+                        is Event1.NavigateToAddEdit -> navigateToAddEdit(it.task)
+                        is Event1.ShowActionMode -> when (it.show) {
+                            true -> actionMode = view?.startActionMode(getCallbackActionMode())
+                            false -> actionMode?.finish()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private fun setObserve() = viewModel.apply {
         // Отображение задач в recyclerview
         shownTasks.observe(viewLifecycleOwner, {
@@ -55,35 +84,44 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
         levels.observe(viewLifecycleOwner, {
             adapter.setLevels(it)
         })
-        selectedItems.observe(viewLifecycleOwner, {
-            it?.let { adapter.setSelections(it) }
-        })
-        showActionMode.observe(viewLifecycleOwner, { event ->
-            event.getContentIfNotHandled()?.let {
-                actionMode = view?.startActionMode(getCallbackActionMode())
-            }
-        })
-        actionModeTitle.observe(viewLifecycleOwner) {
-            actionMode?.title = it
-        }
-        hideActionMode.observe(viewLifecycleOwner, {
-            it?.let { actionMode?.finish() }
-        })
-        showDoneActionMenu.observe(viewLifecycleOwner) { show ->
-            actionMode?.menu?.findItem(R.id.menu_done)?.let { it.isVisible = show }
-        }
-        showEditActionMenu.observe(viewLifecycleOwner) { show ->
-            actionMode?.menu?.findItem(R.id.menu_edit)?.let { it.isVisible = show }
-        }
         enabledConfirmMenu.observe(viewLifecycleOwner, {
             it?.let { mainActivity.invalidateOptionsMenu() }
         })
-        navigateToAdd.observe(viewLifecycleOwner, { event ->
-            event.getContentIfNotHandled()?.let { navigateToAddEdit(null) }
-        })
-        navigateToEdit.observe(viewLifecycleOwner, { event ->
-            event.getContentIfNotHandled()?.let { navigateToAddEdit(it) }
-        })
+
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                showAddButton.collect {
+                    binding.addTask.visibility = when (it) {
+                        true -> View.VISIBLE
+                        false -> View.GONE
+                    }
+                }
+            }
+        }
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                selectedItems.collect { adapter.setSelections(it) }
+            }
+        }
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                actionModeTitle.collect { actionMode?.title = it }
+            }
+        }
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                showDoneActionMenu.collect { show ->
+                    actionMode?.menu?.findItem(R.id.menu_done)?.let { it.isVisible = show }
+                }
+            }
+        }
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                showEditActionMenu.collect { show ->
+                    actionMode?.menu?.findItem(R.id.menu_edit)?.let { it.isVisible = show }
+                }
+            }
+        }
     }
 
     private fun setListeners() {

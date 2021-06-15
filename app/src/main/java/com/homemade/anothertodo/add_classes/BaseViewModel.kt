@@ -4,12 +4,29 @@ import androidx.annotation.StringRes
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.homemade.anothertodo.dialogs.MyConfirmAlertDialog
 import com.homemade.anothertodo.dialogs.MyInputDialog
 import com.homemade.anothertodo.dialogs.MySingleChoiceDialog
 import com.homemade.anothertodo.utils.Event
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
 
-abstract class BaseViewModel : ViewModel() {
+abstract class BaseViewModel<E> : ViewModel() {
+
+    private val _viewEvents = MutableSharedFlow<E>()
+
+    val viewEvents: SharedFlow<E> = _viewEvents.asSharedFlow()
+
+    protected fun setEvent(event: E) =
+        viewModelScope.launch { _viewEvents.emit(event) }
+
+    protected fun getEvents() = _viewEvents
+
 
     private val _showSingleChoiceDialog = MutableLiveData<Event<MySingleChoiceDialog>>()
     val showSingleChoiceDialog: LiveData<Event<MySingleChoiceDialog>>

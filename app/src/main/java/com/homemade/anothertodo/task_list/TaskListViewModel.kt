@@ -1,13 +1,14 @@
 package com.homemade.anothertodo.task_list
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.*
 import com.homemade.anothertodo.Repository
 import com.homemade.anothertodo.add_classes.BaseViewModel
 import com.homemade.anothertodo.db.entity.Task
 import com.homemade.anothertodo.enums.TaskListMode
 import com.homemade.anothertodo.enums.TypeTask
-import com.homemade.anothertodo.utils.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -18,7 +19,17 @@ const val TASK_TYPE_KEY = "taskTypeKey"
 class TaskListViewModel @Inject constructor(
     private val repo: Repository,
     handle: SavedStateHandle
-) : BaseViewModel() {
+) : BaseViewModel<TaskListViewModel.Event1>() {
+
+    // TODO: Rename
+    sealed class Event1 {
+        data class NavigateToAddEdit(val task: Task? = null) : Event1()
+        data class ShowActionMode(val show: Boolean) : Event1()
+        data class EnabledConfirmMenuItem(val show: Boolean) : Event1()
+        data class ShowDoneActionMenuItem(val show: Boolean) : Event1()
+        data class ShowEditActionMenuItem(val show: Boolean) : Event1()
+        data class ShowToast(@StringRes val res: Int) : Event1()
+    }
 
     val mode: TaskListMode = handle.get<TaskListMode>(TASK_MODE_KEY) ?: TaskListMode.DEFAULT
     val taskType: TypeTask = handle.get<TypeTask>(TASK_TYPE_KEY) ?: TypeTask.REGULAR_TASK
@@ -40,66 +51,56 @@ class TaskListViewModel @Inject constructor(
 
     private var isActionMode: Boolean = false
 
-    // Доступность кнопки подтверждения при выборе задачи (режим "Выбор каталога/задачи")
     private val _enabledConfirmMenu = MutableLiveData<Boolean>(null)
     val enabledConfirmMenu: LiveData<Boolean> get() = _enabledConfirmMenu
 
     private var currentTask: Task? = null
-    val currentTaskID: Long get() = currentTask?.id ?: -1
+    val currentTaskID: Long get() = currentTask?.id ?: -1 // FIXME: DEl?
 
-    // Список выделенных задач (напр. для удаления)
-    private val _selectedItems = MutableLiveData<List<Int>>()
-    val selectedItems: LiveData<List<Int>> get() = _selectedItems
+    private val _selectedItems = MutableStateFlow(listOf<Int>())
+    val selectedItems = _selectedItems.asStateFlow()
 
-    val actionModeTitle = Transformations.map(_selectedItems) {
-        currentTask?.name
-    }
-
+    // TODO: Del?
     private val selectedTasks: List<Task>
-        get() = _selectedItems.value?.map { getTask(it) ?: Task() } ?: emptyList()
+        get() = _selectedItems.value.map { getTask(it) ?: Task() }
 
-    /** Visibility */
+    val actionModeTitle: StateFlow<String?> = _selectedItems
+        .map { currentTask?.name }
+        .asState(null)
 
-    private val _showActionMode = MutableLiveData<Event<Boolean>>()
-    val showActionMode: LiveData<Event<Boolean>> get() = _showActionMode
 
-    private val _hideActionMode = MutableLiveData<Event<Boolean>>()
-    val hideActionMode: LiveData<Event<Boolean>> get() = _hideActionMode
+    val showAddButton: StateFlow<Boolean> = getEvents()
+        .filterIsInstance<Event1.ShowActionMode>()
+        .map { mapToShowAddButton(it) }
+        .asState(mode.showAddBtn)
 
-    val showAddButton = MediatorLiveData<Boolean>().apply { value = mode.showAddBtn }
+    val showDoneActionMenu: StateFlow<Boolean> = _selectedItems
+        .map { mapToShowDoneActionMenu(it) }
+        .asState(false)
 
-    val showDoneActionMenu = Transformations.map(_selectedItems) {
-        val noMultiSelect = it.count() == 1
+    val showEditActionMenu: StateFlow<Boolean> = _selectedItems
+        .map { mapToEditAddButton(it) }
+        .asState(false)
+
+
+    private fun mapToShowAddButton(event: Event1.ShowActionMode) =
+        !event.show && mode.showAddBtn
+
+    private fun mapToShowDoneActionMenu(selected: List<Int>): Boolean {
+        val noMultiSelect = selected.count() == 1
         val noGroup = !(currentTask?.group ?: false)
-        taskType == TypeTask.SINGLE_TASK && noGroup && noMultiSelect
+        return !isActionMode || (taskType == TypeTask.SINGLE_TASK && noGroup && noMultiSelect)
     }
 
-    val showEditActionMenu = Transformations.map(_selectedItems) {
-        it.count() == 1
-    }
-
-    /** Navigation */
-
-    private val _navigateToEdit = MutableLiveData<Event<Task?>>()
-    val navigateToEdit: LiveData<Event<Task?>> get() = _navigateToEdit
-
-    private val _navigateToAdd = MutableLiveData<Event<Boolean?>>()
-    val navigateToAdd: LiveData<Event<Boolean?>> get() = _navigateToAdd
+    private fun mapToEditAddButton(selected: List<Int>) =
+        !isActionMode || selected.count() == 1
 
 
-    init {
-        showAddButton.addSource(_showActionMode) {
-            showAddButton.value = false
-        }
-        showAddButton.addSource(_hideActionMode) {
-            showAddButton.value = mode.showAddBtn
-        }
-    }
-
-    fun onAddClicked() = _navigateToAdd.apply { value = Event(true) }
+    fun onAddClicked() =
+        setEvent(Event1.NavigateToAddEdit())
 
     fun onEditClicked() {
-        _navigateToEdit.apply { value = Event(currentTask) }
+        setEvent(Event1.NavigateToAddEdit(currentTask))
         destroyActionMode()
     }
 
@@ -143,7 +144,7 @@ class TaskListViewModel @Inject constructor(
     }
 
     private fun setActionMode() {
-        _showActionMode.value = Event(true)
+        setEvent(Event1.ShowActionMode(true))
         isActionMode = true
     }
 
@@ -152,7 +153,7 @@ class TaskListViewModel @Inject constructor(
             isActionMode = false
             currentTask = null
             _selectedItems.value = emptyList()
-            _hideActionMode.value = Event(true)
+            setEvent(Event1.ShowActionMode(false))
         }
     }
 
@@ -212,5 +213,8 @@ class TaskListViewModel @Inject constructor(
         }
         return groups
     }
+
+    private fun <T> Flow<T>.asState(default: T) =
+        stateIn(viewModelScope, SharingStarted.Lazily, default)
 
 }

@@ -23,7 +23,7 @@ import javax.inject.Inject
 class MainScreenViewModel @Inject constructor(
     private val repo: Repository,
     private val alarmService: AlarmService
-) : BaseViewModel() {
+) : BaseViewModel<String>() {
 
     /** Settings */
 
